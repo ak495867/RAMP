@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  ramp-api:
+    build: .
+    container_name: ramp-api-service
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - ENVIRONMENT=production
+      - DUCKDB_PATH=/app/data/ramp_lakehouse.duckdb
+    restart: unless-stopped
+
+  ramp-dashboard:
+    build: .
+    container_name: ramp-dashboard-ui
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    command: ["streamlit", "run", "dashboard/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+    depends_on:
+      - ramp-api
+    restart: unless-stopped
+
+  ramp-redis:
+    image: redis:7-alpine
+    container_name: ramp-redis-cache
+    ports:
+      - "6379:6379"
+    restart: unless-stopped

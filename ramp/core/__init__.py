@@ -1,7 +1,3 @@
-"""
-RAMP Core Module.
-"""
-
 from ramp.core.types import (
     AssetClass,
     OrderSide,
@@ -14,6 +10,8 @@ from ramp.core.types import (
     RegimeState,
     SignalView,
 )
+from ramp.core.calendar import MarketCalendar
+from ramp.core.alerts import MultiChannelAlertManager, AlertSeverity
 
 __all__ = [
     "AssetClass",
@@ -26,4 +24,7 @@ __all__ = [
     "Position",
     "RegimeState",
     "SignalView",
+    "MarketCalendar",
+    "MultiChannelAlertManager",
+    "AlertSeverity",
 ]
