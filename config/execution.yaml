@@ -1,0 +1,48 @@
+# RAMP Execution & Transaction Cost Configuration
+
+execution:
+  initial_capital: 1000000.0     # $1,000,000 USD
+  base_currency: "USD"
+  
+  costs:
+    equity:
+      commission_per_share: 0.005 # $0.005 / share (IBKR Pro model)
+      min_commission: 1.00
+      half_spread_bps: 1.5       # 1.5 bps
+      impact_coefficient_y: 0.15 # Almgren-Chriss / Kyle square-root coefficient
+      borrow_rate_annual_bps: 35 # 35 bps annual borrow fee for shorting
+    fixed_income:
+      commission_per_share: 0.005
+      min_commission: 1.00
+      half_spread_bps: 2.0
+      impact_coefficient_y: 0.10
+      borrow_rate_annual_bps: 25
+    commodity:
+      commission_per_share: 0.005
+      min_commission: 1.00
+      half_spread_bps: 2.5
+      impact_coefficient_y: 0.20
+      borrow_rate_annual_bps: 40
+    currency:
+      commission_per_share: 0.005
+      min_commission: 1.00
+      half_spread_bps: 1.0
+      impact_coefficient_y: 0.08
+      borrow_rate_annual_bps: 30
+    crypto:
+      commission_pct_bps: 10.0   # 10 bps taker fee
+      min_commission: 0.50
+      half_spread_bps: 5.0
+      impact_coefficient_y: 0.25
+      borrow_rate_annual_bps: 200 # 2.0% funding / borrow rate
+
+  limits:
+    max_adv_participation: 0.05  # Maximum 5% of daily bar volume to avoid market disruption
+    max_position_weight: 0.25   # Maximum 25% portfolio weight in any single asset
+    max_asset_class_weight: 0.50# Maximum 50% in any single asset class
+    gross_leverage_limit: 1.5    # Maximum 150% gross leverage
+    turnover_penalty_lambda: 0.0015 # L1 turnover penalty in CVXPY objective
+
+  latency:
+    model: "next_open"           # Signal generated at close T -> executed at open T+1
+    slippage_delay_bps: 1.0      # Additional latency slippage

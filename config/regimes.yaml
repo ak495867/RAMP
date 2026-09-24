@@ -1,0 +1,31 @@
+# RAMP Regime Detection Configuration
+
+regimes:
+  n_states: 3
+  state_names:
+    0: "low_vol_expansion"       # Bullish equity/risk, benign volatility, normal carry
+    1: "high_vol_contraction"    # High volatility, elevated downside dispersion, risk-off
+    2: "crisis_liquidity_crunch" # Liquidity shock, cross-asset correlation spike, cash/short duration premium
+
+  models:
+    online_hmm:
+      features:
+        - "returns_ew"           # Equal-weighted basket return
+        - "volatility_realized"  # Rolling 21-day annualized Garman-Klass or EWMA vol
+        - "cross_corr_mean"      # Average pairwise correlation across assets
+      covariance_type: "full"
+      n_iter: 100
+      random_state: 42
+      min_train_bars: 252        # 1 year initial burn-in window before online filtering
+      update_frequency: 21       # Retrain emission/transition parameters every 21 days
+      
+    bocpd:
+      hazard_rate: 0.01          # Prior expectation of changepoint every 100 days
+      prior_mean: 0.0
+      prior_var: 1.0
+      observation_var: 1.0
+
+  hysteresis:
+    confidence_threshold: 0.65   # Probability must exceed 65% to trigger regime shift
+    min_dwell_bars: 3            # Must stay in regime for at least 3 trading days
+    dampening_factor: 0.15       # Exponential smoothing factor on transition vector

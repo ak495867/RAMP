@@ -1,0 +1,35 @@
+# RAMP Cross-Asset Alpha & Signal Library Configuration
+
+signals:
+  tsmom:
+    enabled: true
+    lookbacks: [21, 63, 252]     # 1-month, 3-month, 12-month
+    weights: [0.2, 0.3, 0.5]
+    vol_lookback: 63
+    clip_zscore: 3.0
+
+  carry:
+    enabled: true
+    fx_pairs: ["UUP"]
+    commodity_proxies: ["DBC", "GLD"]
+    crypto_symbols: ["BTC-USD"]
+    annualization_factor: 252
+
+  mean_reversion:
+    enabled: true
+    lookback: 20
+    entry_zscore: 2.0
+    exit_zscore: 0.5
+    half_life_max: 30
+
+  vrp:
+    enabled: true
+    iv_ticker: "^VIX"           # CBOE Volatility Index
+    rv_lookback: 21
+    threshold_percentile: 75
+
+  weights:
+    tsmom: 0.35
+    carry: 0.25
+    mean_reversion: 0.20
+    vrp: 0.20
