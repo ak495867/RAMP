@@ -34,15 +34,20 @@ st.title("🛡️ RAMP: Regime-Adaptive Multi-Asset Platform")
 st.caption("Research-to-Production Platform: Causal Online Regimes, Convex Optimization & Realistic Market Impact")
 
 # Sidebar Controls
-st.sidebar.header("Configuration & Hyperparameters")
-universe_selection = st.sidebar.multiselect(
-    "Asset Universe",
-    options=["SPY", "QQQ", "IWM", "TLT", "IEF", "GLD", "DBC", "UUP", "BTC-USD"],
-    default=["SPY", "TLT", "GLD", "BTC-USD"]
+st.sidebar.header("Data Feed & Universe")
+data_source = st.sidebar.radio(
+    "Data Source",
+    options=["Real Market Lakehouse (2018-Present)", "Synthetic Markov Simulation"],
+    index=0
 )
 
-n_bars = st.sidebar.slider("Simulation Length (Trading Days)", min_value=120, max_value=800, value=300, step=20)
-rebalance_freq = st.sidebar.select_slider("Rebalance Frequency", options=[1, 5, 10, 21], value=5)
+universe_selection = st.sidebar.multiselect(
+    "Asset Universe",
+    options=["SPY", "QQQ", "IWM", "EEM", "TLT", "IEF", "GLD", "DBC", "UUP", "BTC-USD"],
+    default=["SPY", "QQQ", "TLT", "GLD", "BTC-USD"]
+)
+
+rebalance_freq = st.sidebar.select_slider("Rebalance Frequency (Trading Days)", options=[1, 5, 10, 21], value=5)
 target_vol = st.sidebar.slider("Annual Volatility Target (%)", min_value=5.0, max_value=25.0, value=12.0) / 100.0
 turnover_penalty = st.sidebar.slider("Turnover L1 Penalty (Lambda)", min_value=0.000, max_value=0.010, value=0.002, step=0.001, format="%.3f")
 market_impact_y = st.sidebar.slider("Kyle/Almgren Impact Coefficient Y", min_value=0.00, max_value=0.40, value=0.15, step=0.05)
@@ -51,20 +56,26 @@ run_button = st.sidebar.button("🚀 Run Event-Driven Backtest", use_container_w
 
 
 @st.cache_data
-def run_simulation(symbols, bars, freq, vol, lmbda, y_impact):
-    gen = SyntheticRegimeDataGenerator(seed=42)
-    bars_df, true_regimes = gen.generate_universe(symbols, n_bars=bars)
+def run_simulation(data_mode, symbols, freq, vol, lmbda, y_impact):
+    parquet_path = "d:/RAMP/data/parquet/multi_asset_bars_2018_present.parquet"
+    if data_mode == "Real Market Lakehouse (2018-Present)" and pd.io.common.file_exists(parquet_path):
+        raw_df = pd.read_parquet(parquet_path)
+        bars_df = raw_df[raw_df["symbol"].isin(symbols)].copy().sort_values(["timestamp", "symbol"])
+    else:
+        gen = SyntheticRegimeDataGenerator(seed=42)
+        bars_df, _ = gen.generate_universe(symbols, n_bars=400)
 
     hmm = OnlineHamiltonFilterHMM(n_regimes=3)
     hyst = RegimeHysteresisFilter(confidence_threshold=0.65, min_dwell_bars=3)
     signals = [
-        TimeSeriesMomentumSignal(lookbacks=[21, 63]),
+        TimeSeriesMomentumSignal(lookbacks=[21, 63, 120]),
         CrossAssetCarrySignal(),
         MeanReversionSignal(lookback=20),
         VolatilityRiskPremiumSignal(rv_lookback=21)
     ]
-    opt = RobustConvexOptimizer(turnover_penalty_lambda=lmbda)
+    opt = RobustConvexOptimizer(turnover_penalty_lambda=lmbda, max_position_weight=0.35)
     cost = ExecutionCostModel(impact_coefficient_y=y_impact)
+    vol_eng = VolatilityTargetingEngine(target_annual_vol=vol)
 
     engine = EventDrivenBacktestEngine(
         symbols=symbols,
@@ -72,6 +83,7 @@ def run_simulation(symbols, bars, freq, vol, lmbda, y_impact):
         hysteresis_filter=hyst,
         signals=signals,
         optimizer=opt,
+        vol_targeting=vol_eng,
         cost_model=cost,
         initial_capital=1000000.0,
         rebalance_frequency_bars=freq,
@@ -85,7 +97,7 @@ def run_simulation(symbols, bars, freq, vol, lmbda, y_impact):
 if run_button or "results" not in st.session_state:
     with st.spinner("Executing point-in-time simulation & causal filtering..."):
         results, bars_df = run_simulation(
-            universe_selection, n_bars, rebalance_freq, target_vol, turnover_penalty, market_impact_y
+            data_source, universe_selection, rebalance_freq, target_vol, turnover_penalty, market_impact_y
         )
         st.session_state["results"] = results
         st.session_state["bars"] = bars_df

@@ -23,13 +23,13 @@ class YahooDataCollector(BaseCollector):
         Fetches historical bars and normalizes column schema:
         ['timestamp', 'symbol', 'open', 'high', 'low', 'close', 'volume']
         """
-        # Download data
+        # Download data with auto_adjust=True for corporate actions / dividend reinvestment
         ticker = yf.Ticker(symbol)
         df = ticker.history(
             start=start_date.strftime("%Y-%m-%d"),
             end=end_date.strftime("%Y-%m-%d"),
             interval=timeframe,
-            auto_adjust=False  # Keep raw and dividend adjusted distinct
+            auto_adjust=True
         )
 
         if df.empty:
@@ -43,17 +43,25 @@ class YahooDataCollector(BaseCollector):
             "High": "high",
             "Low": "low",
             "Close": "close",
-            "Volume": "volume",
-            "Adj Close": "adj_close"
+            "Volume": "volume"
         })
 
-        # Remove timezone if present to maintain naive UTC timestamps
-        if pd.api.types.is_datetime64tz_dtype(df["timestamp"]):
+        # Remove timezone if present to maintain naive UTC timestamps and normalize to date midnight
+        if hasattr(df["timestamp"].dt, "tz") and df["timestamp"].dt.tz is not None:
+            df["timestamp"] = df["timestamp"].dt.tz_convert("UTC").dt.tz_localize(None)
+        elif pd.api.types.is_datetime64tz_dtype(df["timestamp"]):
             df["timestamp"] = df["timestamp"].dt.tz_localize(None)
+        
+        df["timestamp"] = df["timestamp"].dt.normalize()
 
         df["symbol"] = symbol
         df = df[["timestamp", "symbol", "open", "high", "low", "close", "volume"]]
         
+        # Clean subtle backward-adjustment floating-point roundoff (e.g. high slightly < close by 1e-8)
+        import numpy as np
+        df["high"] = np.maximum(df["high"], np.maximum(df["open"], df["close"]))
+        df["low"] = np.minimum(df["low"], np.minimum(df["open"], df["close"]))
+
         # Sort and validate
         df = df.sort_values("timestamp").reset_index(drop=True)
         MarketDataValidator.assert_valid(df, symbol)

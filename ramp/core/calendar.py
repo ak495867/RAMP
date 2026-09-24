@@ -19,21 +19,42 @@ class MarketCalendar:
         """Checks if a given date is a weekday (Monday-Friday)."""
         return dt.weekday() < 5
 
-    def align_to_trading_days(self, df: pd.DataFrame, timestamp_col: str = "timestamp") -> pd.DataFrame:
+    def align_universe_bars(
+        self,
+        bars_df: pd.DataFrame,
+        benchmark_symbol: str = "SPY"
+    ) -> pd.DataFrame:
         """
-        Aligns a multi-asset dataset (including 24/7 crypto) to standard business days.
-        Crypto weekend bars are rolled forward or treated with Friday close alignment
-        so as-of joins against equities/futures are point-in-time consistent.
+        Aligns a multi-asset universe DataFrame to the benchmark's active trading days.
+        For non-benchmark assets (e.g. crypto on weekdays or assets with occasional missing prints),
+        forward-fills missing prices to prevent look-ahead bias and drop weekend-only bars.
         """
-        if timestamp_col not in df.columns and not isinstance(df.index, pd.DatetimeIndex):
-            raise ValueError(f"Column {timestamp_col} not found and index is not DatetimeIndex")
+        df = bars_df.copy()
+        df["timestamp"] = pd.to_datetime(df["timestamp"])
 
-        data = df.copy()
-        if timestamp_col in data.columns:
-            data[timestamp_col] = pd.to_datetime(data[timestamp_col])
-            data = data.sort_values(timestamp_col)
-        else:
-            data.index = pd.to_datetime(data.index)
-            data = data.sort_index()
+        # Determine reference trading days from benchmark
+        bm_dates = df[df["symbol"] == benchmark_symbol]["timestamp"].drop_duplicates().sort_values()
+        if bm_dates.empty:
+            # Fallback to business days if benchmark not present
+            bm_dates = df[df["timestamp"].dt.weekday < 5]["timestamp"].drop_duplicates().sort_values()
 
-        return data
+        symbols = df["symbol"].unique()
+        aligned_records = []
+
+        for sym in symbols:
+            sym_df = df[df["symbol"] == sym].drop_duplicates(subset=["timestamp"]).sort_values("timestamp")
+            # Reindex to benchmark dates
+            sym_df = sym_df.set_index("timestamp").reindex(bm_dates)
+            sym_df["symbol"] = sym
+            # Forward fill prices, zero fill volume
+            sym_df["close"] = sym_df["close"].ffill().bfill()
+            sym_df["open"] = sym_df["open"].fillna(sym_df["close"])
+            sym_df["high"] = sym_df["high"].fillna(sym_df["close"])
+            sym_df["low"] = sym_df["low"].fillna(sym_df["close"])
+            sym_df["volume"] = sym_df["volume"].fillna(0.0)
+
+            sym_df = sym_df.reset_index().rename(columns={"index": "timestamp"})
+            aligned_records.append(sym_df)
+
+        aligned_df = pd.concat(aligned_records, ignore_index=True)
+        return aligned_df.sort_values(["timestamp", "symbol"]).reset_index(drop=True)
