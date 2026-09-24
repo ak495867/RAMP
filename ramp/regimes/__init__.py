@@ -1,15 +1,14 @@
-"""
-RAMP Market Regime Detection Module.
-"""
-
 from ramp.regimes.base import BaseRegimeDetector
 from ramp.regimes.online_hmm import OnlineHamiltonFilterHMM
 from ramp.regimes.bocpd import BayesianOnlineChangePointDetector
 from ramp.regimes.filter import RegimeHysteresisFilter
+from ramp.regimes.macro_quadrant import MacroQuadrantClassifier, YieldCurvePCA
 
 __all__ = [
     "BaseRegimeDetector",
     "OnlineHamiltonFilterHMM",
     "BayesianOnlineChangePointDetector",
     "RegimeHysteresisFilter",
+    "MacroQuadrantClassifier",
+    "YieldCurvePCA",
 ]
