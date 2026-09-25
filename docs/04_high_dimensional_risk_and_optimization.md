@@ -10,7 +10,7 @@ When expanding the asset universe from 10 to 40+ instruments, the sample covaria
 
 ## 4.2 Random Matrix Theory (RMT) Marchenko-Pastur Denoising
 
-In [`ramp/portfolio/covariance.py`](file:///d:/RAMP/ramp/portfolio/covariance.py), RAMP filters empirical covariance matrices using the **Marchenko-Pastur Theorem**.
+In [`ramp/portfolio/covariance.py`](../ramp/portfolio/covariance.py), RAMP filters empirical covariance matrices using the **Marchenko-Pastur Theorem**.
 
 ### Theoretical Noise Bounds
 Under the null hypothesis of pure uncorrelated noise, the eigenvalues of a random correlation matrix are bounded by:
@@ -28,7 +28,7 @@ $$\lambda_{\min}^{\max} = \sigma^2 \left(1 \pm \sqrt{\frac{N}{T}}\right)^2$$
 
 ## 4.3 Barra-Style Multi-Factor Risk Decomposition
 
-In [`ramp/portfolio/factor_risk.py`](file:///d:/RAMP/ramp/portfolio/factor_risk.py), asset returns are decomposed into systematic risk factors and idiosyncratic specific risk:
+In [`ramp/portfolio/factor_risk.py`](../ramp/portfolio/factor_risk.py), asset returns are decomposed into systematic risk factors and idiosyncratic specific risk:
 
 $$r_i = \sum_{k=1}^K X_{ik} f_k + \epsilon_i$$
 
@@ -45,7 +45,7 @@ Where:
 
 ## 4.4 Regime-Conditioned Black-Litterman Model
 
-In [`ramp/portfolio/black_litterman.py`](file:///d:/RAMP/ramp/portfolio/black_litterman.py), equilibrium market priors and active alpha views are blended conditioned on the active regime $S_t$:
+In [`ramp/portfolio/black_litterman.py`](../ramp/portfolio/black_litterman.py), equilibrium market priors and active alpha views are blended conditioned on the active regime $S_t$:
 
 ### 1. Regime Prior Equilibrium
 $$\Pi_k = \delta_k \tilde{\Sigma} w_{\text{mkt}}$$
@@ -62,7 +62,7 @@ $$V_{\text{post}} = \tilde{\Sigma} + \left[(\tau \tilde{\Sigma})^{-1} + P^T \Ome
 
 ## 4.5 CVXPY Convex Optimization with L1 Turnover Penalty
 
-In [`ramp/portfolio/optimizer.py`](file:///d:/RAMP/ramp/portfolio/optimizer.py), target weights $w \in \mathbb{R}^N$ solve the convex problem:
+In [`ramp/portfolio/optimizer.py`](../ramp/portfolio/optimizer.py), target weights $w \in \mathbb{R}^N$ solve the convex problem:
 
 $$\min_{w} \quad \frac{\gamma}{2} w^T V_{\text{post}} w - \mu_{\text{post}}^T w + \lambda_{\text{turnover}} \|w - w_{\text{prev}}\|_1$$
 
@@ -72,13 +72,13 @@ $$0.0 \le w_i \le 0.15 \quad (\text{Single-name concentration cap})$$
 $$\sum_{j \in \text{AssetClass}_m} w_j \le \text{Cap}_m \quad (\text{Asset-class silo limits})$$
 
 ### Hierarchical Risk Parity (HRP) Fallback
-If the convex solver encounters numerical instability, RAMP automatically falls back to **Hierarchical Risk Parity** ([`ramp/portfolio/hrp.py`](file:///d:/RAMP/ramp/portfolio/hrp.py)), performing tree clustering on correlation distance matrices without matrix inversion.
+If the convex solver encounters numerical instability, RAMP automatically falls back to **Hierarchical Risk Parity** ([`ramp/portfolio/hrp.py`](../ramp/portfolio/hrp.py)), performing tree clustering on correlation distance matrices without matrix inversion.
 
 ---
 
 ## 4.6 Dynamic Realized Volatility Targeting
 
-In [`ramp/portfolio/vol_target.py`](file:///d:/RAMP/ramp/portfolio/vol_target.py), portfolio weights are continuously scaled to maintain a constant annual risk profile (e.g. $\sigma_{\text{target}} = 12\%$):
+In [`ramp/portfolio/vol_target.py`](../ramp/portfolio/vol_target.py), portfolio weights are continuously scaled to maintain a constant annual risk profile (e.g. $\sigma_{\text{target}} = 12\%$):
 
 $$\text{Scale} = \min\left(1.20, \frac{\sigma_{\text{target}}}{\sqrt{252 \cdot w^T V_{\text{post}} w}}\right)$$
 $$w_{\text{final}} = \text{Scale} \cdot w$$
