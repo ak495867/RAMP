@@ -13,7 +13,7 @@ In academic backtests, strategies appear profitable because they assume trades f
 
 ## 5.2 Institutional Transaction Cost & Market Impact Model
 
-In [`ramp/execution/cost_model.py`](file:///d:/RAMP/ramp/execution/cost_model.py), RAMP calculates execution fills using the non-linear **Kyle / Almgren-Chriss Square-Root Law**:
+In [`ramp/execution/cost_model.py`](../ramp/execution/cost_model.py), RAMP calculates execution fills using the non-linear **Kyle / Almgren-Chriss Square-Root Law**:
 
 $$P_{\text{exec}} = P_{\text{mid}} \left(1 \pm \frac{s}{2} \pm Y \cdot \sigma_{\text{daily}} \sqrt{\frac{Q}{\text{ADV}}} \pm \eta_{\text{delay}}\right)$$
 
@@ -32,7 +32,7 @@ No single order is permitted to exceed $5\%$ of daily volume ($Q \le 0.05 \cdot 
 
 ## 5.3 Intraday U-Shaped Volume Profiler
 
-In [`ramp/execution/volume_profile.py`](file:///d:/RAMP/ramp/execution/volume_profile.py), RAMP models the empirical **U-shaped volume distribution** across the 390 minutes of the US trading session:
+In [`ramp/execution/volume_profile.py`](../ramp/execution/volume_profile.py), RAMP models the empirical **U-shaped volume distribution** across the 390 minutes of the US trading session:
 
 ```
 Volume %
@@ -58,7 +58,7 @@ Volume %
 
 ## 5.4 U-Shaped Volume-Clock VWAP Slicing
 
-[`UShapedVWAPSlicer`](file:///d:/RAMP/ramp/execution/volume_profile.py#L33-L77) transforms Almgren-Chriss liquidation urgency from chronological clock time to **volume-clock time**:
+[`UShapedVWAPSlicer`](../ramp/execution/volume_profile.py#L33-L77) transforms Almgren-Chriss liquidation urgency from chronological clock time to **volume-clock time**:
 
 $$n_k = \frac{w_{\text{vol}, k} \cdot e^{-\lambda t_k}}{\sum_{j=1}^{13} w_{\text{vol}, j} \cdot e^{-\lambda t_j}} \times Q_{\text{total}}$$
 
@@ -68,7 +68,7 @@ Child order sizes dynamically scale with expected market depth: trading aggressi
 
 ## 5.5 Order Book Imbalance (OBI) Tactical Router
 
-In [`ramp/execution/obi_slicer.py`](file:///d:/RAMP/ramp/execution/obi_slicer.py), child orders receive tactical routing instructions based on top-of-book depth:
+In [`ramp/execution/obi_slicer.py`](../ramp/execution/obi_slicer.py), child orders receive tactical routing instructions based on top-of-book depth:
 
 $$\text{OBI}_t = \frac{V_{\text{bid}, t} - V_{\text{ask}, t}}{V_{\text{bid}, t} + V_{\text{ask}, t}} \in [-1, 1]$$
 
