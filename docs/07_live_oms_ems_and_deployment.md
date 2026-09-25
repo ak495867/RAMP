@@ -18,21 +18,21 @@ $$\text{Drift}_i = \left| \frac{\text{Position Market Value}_i}{\text{Total Acco
 
 ## 7.2 Broker Connectivity: Alpaca & IBKR Gateways
 
-RAMP supports unified broker interfaces inheriting from [`BaseBroker`](file:///d:/RAMP/ramp/paper/simulated_broker.py#L9-L22):
+RAMP supports unified broker interfaces inheriting from [`BaseBroker`](../ramp/paper/simulated_broker.py#L9-L22):
 
 ### 1. Alpaca Securities Gateway
-* **File**: [`ramp/paper/alpaca_broker.py`](file:///d:/RAMP/ramp/paper/alpaca_broker.py)
+* **File**: [`ramp/paper/alpaca_broker.py`](../ramp/paper/alpaca_broker.py)
 * **Features**: Zero-commission US equity and ETF execution via REST API / WebSockets. Supports paper trading and live account modes.
 
 ### 2. High-Fidelity Simulated Broker
-* **File**: [`ramp/paper/simulated_broker.py`](file:///d:/RAMP/ramp/paper/simulated_broker.py)
+* **File**: [`ramp/paper/simulated_broker.py`](../ramp/paper/simulated_broker.py)
 * **Features**: Local in-memory paper broker tracking position cost basis, cash accrual, and order execution logs.
 
 ---
 
 ## 7.3 Multi-Channel Webhook Alerting Service
 
-In [`ramp/core/alerts.py`](file:///d:/RAMP/ramp/core/alerts.py), RAMP provides automated real-time alerts dispatched to **Discord** and **Slack**:
+In [`ramp/core/alerts.py`](../ramp/core/alerts.py), RAMP provides automated real-time alerts dispatched to **Discord** and **Slack**:
 
 ### Supported Critical Events:
 1. **Circuit-Breaker Kill-Switch Triggered**: Dispatches an emergency payload with current drawdown percentage and liquidation status.
