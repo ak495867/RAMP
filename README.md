@@ -1,4 +1,4 @@
-# 🛡️ RAMP: Regime-Adaptive Multi-Asset Portfolio Research & Execution Platform
+#  RAMP: Regime-Adaptive Multi-Asset Portfolio Research & Execution Platform
 
 > **A research-to-production quantitative platform proving whether regime-conditioned risk models outperform static benchmarks after non-linear transaction costs, market impact, and model uncertainty.**
 
@@ -9,7 +9,7 @@
 
 ---
 
-## 📌 Executive Summary
+##  Executive Summary
 
 Most retail "regime-switching" backtests are mathematically compromised before they even start. They suffer from:
 1. **Look-ahead bias**: Applying offline smoothing algorithms ($P(S_t \mid r_{1:T})$) that leak future crash information into past decisions.
@@ -21,7 +21,7 @@ Most retail "regime-switching" backtests are mathematically compromised before t
 
 ---
 
-## 🏛️ Full System Architecture
+##  Full System Architecture
 
 ```mermaid
 flowchart TD
@@ -128,7 +128,7 @@ flowchart TD
 
 ---
 
-## 🏆 Real-World Empirical Scoreboard (2018 – 2026)
+##  Real-World Empirical Scoreboard (2018 – 2026)
 
 We backtested RAMP against classic institutional benchmarks using **24,123 real-world market bars** and **38,957 macroeconomic observations** spanning nearly **9 years of live market history** (Volmageddon 2018, COVID 2020, Fed Rate Hiking Cycle 2022, AI Expansion 2023–2026).
 
@@ -159,7 +159,7 @@ All models were evaluated under identical, non-linear microstructure conditions:
 
 ---
 
-## 📂 Repository Directory Layout
+##  Repository Directory Layout
 
 ```
 d:/RAMP/
@@ -235,12 +235,12 @@ d:/RAMP/
 
 ---
 
-## 🚀 Quickstart & Usage
+##  Quickstart & Usage
 
 ### 1. Installation & Environment Setup
 Clone the repository and install dependencies in editable mode:
 ```bash
-git clone https://github.com/your-username/RAMP.git
+git clone https://github.com/ak495867/RAMP.git
 cd RAMP
 pip install -e .
 ```
@@ -277,7 +277,7 @@ docker compose up -d
 
 ---
 
-## 🔬 Mathematical Formulations Reference
+##  Mathematical Formulations Reference
 
 ### 1. Online Causal Hamilton Forward Filter (No Peeking)
 $$P(S_t = j \mid r_{1:t}) = \frac{f(r_t \mid S_t = j) \sum_{i=1}^K P(S_t = j \mid S_{t-1} = i) P(S_{t-1} = i \mid r_{1:t-1})}{\sum_{k=1}^K f(r_t \mid S_t = k) \sum_{i=1}^K P(S_t = k \mid S_{t-1} = i) P(S_{t-1} = i \mid r_{1:t-1})}$$
@@ -298,5 +298,5 @@ $$\text{VaR}_\alpha = u + \frac{\beta}{\xi} \left[ \left(\frac{N}{N_u} (1 - \alp
 
 ---
 
-## 📜 License
-Licensed under the [Apache License, Version 2.0](LICENSE).
+##  License
+Licensed under the [Apache License, Version 2.0](LICENSE.md).
