@@ -4,7 +4,7 @@
 
 ## 3.1 Overview & Signal Interface
 
-Every alpha signal in RAMP inherits from [`BaseSignal`](file:///d:/RAMP/ramp/signals/base.py) and produces standardized [`SignalView`](file:///d:/RAMP/ramp/core/types.py#L90-L98) instances:
+Every alpha signal in RAMP inherits from [`BaseSignal`](../ramp/signals/base.py) and produces standardized [`SignalView`](../ramp/core/types.py#L90-L98) instances:
 * `expected_return`: Annualized expected return ($\mu$).
 * `confidence`: Bayesian certainty parameter $\in [0.05, 1.0]$.
 * `horizon_bars`: Expected holding period horizon in trading days.
@@ -14,7 +14,7 @@ Every alpha signal in RAMP inherits from [`BaseSignal`](file:///d:/RAMP/ramp/sig
 ## 3.2 Signal Catalog
 
 ### 1. Multi-Horizon Time-Series Momentum (TSMOM)
-* **File**: [`ramp/signals/momentum.py`](file:///d:/RAMP/ramp/signals/momentum.py)
+* **File**: [`ramp/signals/momentum.py`](../ramp/signals/momentum.py)
 * **Economic Logic**: Capital flows and institutional slow-moving capital create persistent multi-month price trends (Moskowitz, Ooi, Pedersen 2012).
 * **Mathematical Formulation**:
   Combines 1M (21d), 3M (63d), and 12M (252d) lookback returns scaled by ex-ante annualized volatility:
@@ -26,7 +26,7 @@ Every alpha signal in RAMP inherits from [`BaseSignal`](file:///d:/RAMP/ramp/sig
 ---
 
 ### 2. Cross-Asset Carry
-* **File**: [`ramp/signals/carry.py`](file:///d:/RAMP/ramp/signals/carry.py)
+* **File**: [`ramp/signals/carry.py`](../ramp/signals/carry.py)
 * **Economic Logic**: Investors demand compensation for holding risk assets assuming static spot prices (roll yields, yield curves, interest rate differentials).
 * **Components**:
   * *Commodities*: Futures term structure basis (backwardation vs contango roll yield).
@@ -38,7 +38,7 @@ Every alpha signal in RAMP inherits from [`BaseSignal`](file:///d:/RAMP/ramp/sig
 ---
 
 ### 3. Ornstein-Uhlenbeck Mean Reversion
-* **File**: [`ramp/signals/mean_reversion.py`](file:///d:/RAMP/ramp/signals/mean_reversion.py)
+* **File**: [`ramp/signals/mean_reversion.py`](../ramp/signals/mean_reversion.py)
 * **Economic Logic**: Short-term liquidity dislocations cause asset prices to deviate from local exponential moving averages.
 * **Mathematical Formulation**:
   $$z_t = \frac{P_t - \mu_{\text{EMA}, 20}}{\sigma_{\text{rolling}, 20}}$$
@@ -49,7 +49,7 @@ Every alpha signal in RAMP inherits from [`BaseSignal`](file:///d:/RAMP/ramp/sig
 ---
 
 ### 4. Volatility Risk Premium (VRP)
-* **File**: [`ramp/signals/vrp.py`](file:///d:/RAMP/ramp/signals/vrp.py)
+* **File**: [`ramp/signals/vrp.py`](../ramp/signals/vrp.py)
 * **Economic Logic**: Options market participants consistently overpay for downside catastrophe insurance, creating a structural spread between Implied Volatility ($IV$) and Realized Volatility ($RV$).
 * **Mathematical Formulation**:
   $$\text{VRP}_t = IV_{\text{VIX}, t} - RV_{\text{21d}, t}$$
@@ -59,7 +59,7 @@ Every alpha signal in RAMP inherits from [`BaseSignal`](file:///d:/RAMP/ramp/sig
 ---
 
 ### 5. CFTC Commitments of Traders (COT) Positioning
-* **File**: [`ramp/signals/cot_positioning.py`](file:///d:/RAMP/ramp/signals/cot_positioning.py)
+* **File**: [`ramp/signals/cot_positioning.py`](../ramp/signals/cot_positioning.py)
 * **Economic Logic**: Commercial hedgers are informed fundamental participants, while leveraged speculators represent trend-following liquidity. When speculative crowding reaches extreme limits, upside momentum exhausts.
 * **Mathematical Formulation**:
   $$Z_{\text{COT}} = \frac{\text{Net Speculative Position}_t - \mu_{52}}{\sigma_{52}}$$
@@ -70,7 +70,7 @@ Every alpha signal in RAMP inherits from [`BaseSignal`](file:///d:/RAMP/ramp/sig
 
 ## 3.3 AutoML Dynamic Factor Pruning
 
-In [`ramp/signals/factor_pruning.py`](file:///d:/RAMP/ramp/signals/factor_pruning.py), factors that suffer from structural decay (factor crowding) are automatically identified and pruned:
+In [`ramp/signals/factor_pruning.py`](../ramp/signals/factor_pruning.py), factors that suffer from structural decay (factor crowding) are automatically identified and pruned:
 
 ### Information Coefficient (IC) Tracking
 Calculates rolling 63-day Spearman rank correlation between factor forecasts and realized 21-day forward returns:
