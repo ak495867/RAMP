@@ -7,7 +7,6 @@ from datetime import datetime
 from typing import List, Optional
 import pandas as pd
 
-
 class BaseCollector(ABC):
     """Abstract interface for all asset and macro data collectors."""
 

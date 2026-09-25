@@ -4,7 +4,6 @@ import pytest
 from ramp.validation.evt_copula import ExtremeValueTheoryEngine, CopulaStressSimulator
 from ramp.execution.volume_profile import IntradayVolumeProfiler, UShapedVWAPSlicer
 
-
 def test_extreme_value_theory_gpd_fitting():
     rng = np.random.default_rng(42)
     normal_losses = rng.normal(0.001, 0.015, size=500)
@@ -21,7 +20,6 @@ def test_extreme_value_theory_gpd_fitting():
     assert "evt_var" in metrics
     assert "evt_cvar" in metrics
     assert metrics["evt_cvar"] >= metrics["evt_var"]
-
 
 def test_copula_stress_simulator():
     corr = np.array([
@@ -43,7 +41,6 @@ def test_copula_stress_simulator():
     assert "evt_cvar_99" in stress_eval
     assert stress_eval["worst_case_drawdown"] > 0.0
 
-
 def test_intraday_volume_profiler_u_shape():
     profiler = IntradayVolumeProfiler()
     profile = profiler.profile
@@ -58,7 +55,6 @@ def test_intraday_volume_profiler_u_shape():
     assert len(cum_profile) == 13
     assert np.all(np.diff(cum_profile) > 0)
     assert pytest.approx(float(cum_profile[-1]), abs=1e-5) == 1.0
-
 
 def test_u_shaped_vwap_slicer():
     slicer = UShapedVWAPSlicer()

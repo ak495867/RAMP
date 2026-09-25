@@ -8,7 +8,6 @@ from typing import Optional
 import numpy as np
 import scipy.stats as stats
 
-
 class DeflatedSharpeRatio:
     """
     Computes PSR and DSR to test if an observed Sharpe ratio is statistically significant
@@ -57,11 +56,9 @@ class DeflatedSharpeRatio:
         if num_trials <= 1:
             return cls.probabilistic_sharpe_ratio(observed_sr, 0.0, n_observations, skewness, kurtosis)
 
-        # Euler-Mascheroni constant
         euler = 0.5772156649
         std_trials = np.sqrt(max(trials_variance, 1e-6))
 
-        # Expected maximum Sharpe under null of independent random strategies
         z1 = stats.norm.ppf(1.0 - 1.0 / num_trials)
         z2 = stats.norm.ppf(1.0 - 1.0 / (num_trials * np.e))
         expected_max_sr = std_trials * ((1.0 - euler) * z1 + euler * z2)

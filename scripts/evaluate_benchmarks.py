@@ -32,7 +32,6 @@ if hasattr(sys.stdout, "reconfigure"):
 
 PARQUET_FILE = Path("d:/RAMP/data/parquet/multi_asset_bars_2018_present.parquet")
 
-
 def main():
     print("=" * 80)
     print("[*] RAMP REAL-WORLD STRATEGY BENCHMARK EVALUATION (2018 - PRESENT)")
@@ -47,9 +46,8 @@ def main():
     print(f"    Date Range: {bars_df['timestamp'].min().strftime('%Y-%m-%d')} to {bars_df['timestamp'].max().strftime('%Y-%m-%d')}")
     print(f"    Instruments: {sorted(bars_df['symbol'].unique())}\n")
 
-    # Liquid tradeable universe for portfolio construction
     tradeable_symbols = ["SPY", "QQQ", "IWM", "EEM", "TLT", "IEF", "GLD", "DBC", "UUP", "BTC-USD"]
-    # Filter only symbols present in dataset
+
     available_symbols = [s for s in tradeable_symbols if s in bars_df["symbol"].unique()]
     print(f"[*] Tradeable Universe ({len(available_symbols)} assets): {available_symbols}")
 
@@ -60,9 +58,6 @@ def main():
         max_adv_participation=0.05
     )
 
-    # ----------------------------------------------------
-    # Benchmark 1: Static 60/40 (SPY / TLT)
-    # ----------------------------------------------------
     print("\n[1/3] Simulating Benchmark 1: Static 60/40 Equity/Treasury (SPY/TLT)...")
     res_60_40 = BenchmarkEvaluator.run_static_60_40(
         bars_df=bars_df,
@@ -72,9 +67,6 @@ def main():
         cost_model=cost_model
     )
 
-    # ----------------------------------------------------
-    # Benchmark 2: Static Risk Parity (Inverse Volatility)
-    # ----------------------------------------------------
     print("[2/3] Simulating Benchmark 2: Static Risk Parity across Universe...")
     res_risk_parity = BenchmarkEvaluator.run_static_risk_parity(
         bars_df=bars_df,
@@ -84,9 +76,6 @@ def main():
         cost_model=cost_model
     )
 
-    # ----------------------------------------------------
-    # Model: RAMP Regime-Adaptive Multi-Asset Platform
-    # ----------------------------------------------------
     print("[3/3] Simulating RAMP: Regime-Adaptive Multi-Asset Platform...")
     hmm = OnlineHamiltonFilterHMM(n_regimes=3)
     hyst = RegimeHysteresisFilter(confidence_threshold=0.65, min_dwell_bars=3)
@@ -111,20 +100,16 @@ def main():
         optimizer=optimizer,
         vol_targeting=vol_target,
         cost_model=cost_model,
-        rebalance_frequency_bars=5,  # Weekly adaptive rebalance
+        rebalance_frequency_bars=5,                             
         burn_in_bars=60
     )
 
     res_ramp = engine.run(bars_df)
 
-    # ----------------------------------------------------
-    # Compile Head-to-Head Comparison Table
-    # ----------------------------------------------------
     m_6040 = res_60_40["metrics"]
     m_rp = res_risk_parity["metrics"]
     m_ramp = res_ramp["metrics"]
 
-    # Frictional analysis
     slip_6040 = sum(f.slippage for f in res_60_40["fills"])
     comm_6040 = sum(f.commission for f in res_60_40["fills"])
 
@@ -151,7 +136,6 @@ def main():
     print(f"{'Total Frictional Drag ($)':<28} | ${slip_6040 + comm_6040:>13,.2f} | ${slip_rp + comm_rp:>13,.2f} | ${slip_ramp + comm_ramp:>13,.2f}")
     print("=" * 80)
 
-    # Statistical Rigor (DSR)
     dsr_ramp = DeflatedSharpeRatio.deflated_sharpe_ratio(
         observed_sr=m_ramp.get("sharpe_ratio", 1.0),
         trials_variance=0.15,
@@ -165,7 +149,6 @@ def main():
         print("    -> Caution: Sharpe ratio requires larger sample or lower parameter search variance.")
 
     print("\n[OK] Head-to-head real-world evaluation complete.\n")
-
 
 if __name__ == "__main__":
     main()

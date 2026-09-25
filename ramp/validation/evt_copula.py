@@ -2,7 +2,6 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import scipy.stats as stats
 
-
 class ExtremeValueTheoryEngine:
 
     def __init__(self, tail_quantile: float = 0.95):
@@ -64,7 +63,6 @@ class ExtremeValueTheoryEngine:
             "evt_var": round(float(var_evt), 4),
             "evt_cvar": round(float(cvar_evt), 4)
         }
-
 
 class CopulaStressSimulator:
 

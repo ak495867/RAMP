@@ -7,7 +7,6 @@ from typing import List, Dict, Literal
 import pandas as pd
 import numpy as np
 
-
 class ContinuousFuturesBuilder:
     """
     Stitches individual futures contract slices into a continuous historical series.
@@ -35,7 +34,7 @@ class ContinuousFuturesBuilder:
     ) -> pd.DataFrame:
         """
         Adjusts continuous price series backward from current active contract.
-        
+
         - 'ratio': Multiplies historical prices by ratio (P_next / P_front) at roll date.
                    Preserves percentage returns. Preferred for equity/financial futures.
         - 'panama_canal': Adds cumulative difference (P_next - P_front) backwards.
@@ -46,22 +45,20 @@ class ContinuousFuturesBuilder:
             raise ValueError("Dataframe must contain 'close' column")
 
         df["adj_close"] = df["close"].copy()
-        
-        # Sort roll dates descending (from most recent back into history)
+
         sorted_rolls = sorted(roll_dates, reverse=True)
 
         cumulative_ratio = 1.0
         cumulative_diff = 0.0
 
         for roll_dt in sorted_rolls:
-            # Locate rows at or before the roll date
+
             mask = df["timestamp"] <= roll_dt
-            # Calculate gap at roll date if both front and next contract prices exist
-            # Here roll_gap is expected in df or computed between consecutive contracts
+
             if "roll_gap" in df.columns and roll_dt in df["timestamp"].values:
                 gap = df.loc[df["timestamp"] == roll_dt, "roll_gap"].values[0]
                 front_p = df.loc[df["timestamp"] == roll_dt, "close"].values[0]
-                
+
                 if method == "ratio" and front_p > 0:
                     multiplier = (front_p + gap) / front_p
                     cumulative_ratio *= multiplier

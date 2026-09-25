@@ -13,7 +13,6 @@ from sklearn.mixture import GaussianMixture
 from ramp.core.types import RegimeState
 from ramp.regimes.base import BaseRegimeDetector
 
-
 class OnlineHamiltonFilterHMM(BaseRegimeDetector):
     """
     Online Hidden Markov Model implementing the Hamilton Forward Filter.
@@ -29,7 +28,6 @@ class OnlineHamiltonFilterHMM(BaseRegimeDetector):
         super().__init__(n_regimes, regime_names)
         self.random_state = random_state
 
-        # Parameters
         self.means: np.ndarray = np.zeros((n_regimes, 1))
         self.covariances: List[np.ndarray] = [np.eye(1) for _ in range(n_regimes)]
         self.transition_matrix: np.ndarray = np.eye(n_regimes)
@@ -46,7 +44,6 @@ class OnlineHamiltonFilterHMM(BaseRegimeDetector):
         if len(X) < 30:
             raise ValueError(f"Need at least 30 observations to fit HMM priors, got {len(X)}")
 
-        # Fit Gaussian Mixture to initialize emission distributions
         gmm = GaussianMixture(
             n_components=self.n_regimes,
             covariance_type="full",
@@ -55,27 +52,21 @@ class OnlineHamiltonFilterHMM(BaseRegimeDetector):
         )
         labels = gmm.fit_predict(X)
 
-        # Compute empirical variances to canonicalize state ordering
-        # Regime 0 = Lowest variance, Regime N-1 = Highest variance (Crisis/Liquidity shock)
         variances = [np.trace(gmm.covariances_[i]) for i in range(self.n_regimes)]
         order = np.argsort(variances)
 
         self.means = gmm.means_[order]
         self.covariances = [gmm.covariances_[i] for i in order]
 
-        # Re-map labels according to canonical order
         remap = {old: new for new, old in enumerate(order)}
         canonical_labels = np.array([remap[lbl] for lbl in labels])
 
-        # Estimate empirical transition matrix with Laplace smoothing
-        A = np.ones((self.n_regimes, self.n_regimes)) * 0.5  # Prior smoothing
+        A = np.ones((self.n_regimes, self.n_regimes)) * 0.5                   
         for i in range(len(canonical_labels) - 1):
             A[canonical_labels[i], canonical_labels[i + 1]] += 1.0
 
-        # Normalize row-stochastic matrix
         self.transition_matrix = A / A.sum(axis=1, keepdims=True)
 
-        # Set initial prior state probability to stationary or uniform
         self.filtered_probs = np.ones(self.n_regimes) / self.n_regimes
         self.is_fitted = True
         return self
@@ -90,24 +81,20 @@ class OnlineHamiltonFilterHMM(BaseRegimeDetector):
 
         x = np.asarray(current_features, dtype=float).reshape(-1)
 
-        # 1. Prediction step: P(S_t = j | x_{1:t-1}) = \sum_i P(S_{t-1} = i | x_{1:t-1}) * A_{ij}
         prior_state_probs = self.filtered_probs @ self.transition_matrix
 
-        # 2. Emission likelihood: f(x_t | S_t = j)
         likelihoods = np.zeros(self.n_regimes)
         for j in range(self.n_regimes):
             try:
-                # Add small epsilon to diagonal for numerical conditioning
+
                 cov = self.covariances[j] + np.eye(len(x)) * 1e-6
                 dist = multivariate_normal(mean=self.means[j], cov=cov, allow_singular=True)
                 likelihoods[j] = dist.pdf(x)
             except Exception:
                 likelihoods[j] = 1e-8
 
-        # Floor likelihoods to avoid division by zero
         likelihoods = np.maximum(likelihoods, 1e-12)
 
-        # 3. Update step: \alpha_t(j) = likelihood_j * prior_j
         unnormalized = prior_state_probs * likelihoods
         sum_p = np.sum(unnormalized)
         if sum_p <= 0 or np.isnan(sum_p):
@@ -115,7 +102,6 @@ class OnlineHamiltonFilterHMM(BaseRegimeDetector):
         else:
             self.filtered_probs = unnormalized / sum_p
 
-        # 4. Calculate Shannon Entropy H = -\sum p log(p) as uncertainty metric
         safe_probs = np.maximum(self.filtered_probs, 1e-12)
         entropy = float(-np.sum(safe_probs * np.log(safe_probs)))
 

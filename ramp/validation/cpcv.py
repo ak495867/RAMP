@@ -8,7 +8,6 @@ from typing import Generator, List, Tuple
 import numpy as np
 import pandas as pd
 
-
 class CombinatorialPurgedCV:
     """
     CPCV splits N observations into G groups, and selects k groups for testing.
@@ -39,12 +38,10 @@ class CombinatorialPurgedCV:
 
         for test_group_indices in combinations(range(self.n_groups), self.k_test_groups):
             test_indices = np.concatenate([groups[i] for i in test_group_indices])
-            
-            # Identify test segments to purge and embargo
+
             train_mask = np.ones(n_samples, dtype=bool)
             train_mask[test_indices] = False
 
-            # Embargo right after each test group
             for g_idx in test_group_indices:
                 test_end = groups[g_idx][-1]
                 embargo_end = min(test_end + embargo_bars, n_samples)

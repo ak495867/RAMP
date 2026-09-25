@@ -10,7 +10,6 @@ import pandas as pd
 from ramp.core.types import SignalView
 from ramp.signals.base import BaseSignal
 
-
 class MeanReversionSignal(BaseSignal):
     """
     Computes rolling z-score of price relative to exponential moving average.
@@ -50,11 +49,9 @@ class MeanReversionSignal(BaseSignal):
             current_p = closes[-1]
             z_score = (current_p - mean_p) / std_p
 
-            # Reversion expected return is negatively proportional to z-score
             expected_ret = float(-z_score * 0.05)
             expected_ret = np.clip(expected_ret, -self.max_expected_ret, self.max_expected_ret)
 
-            # High confidence only when dislocation is extreme (|z| >= entry_zscore)
             dislocation_intensity = min(abs(z_score) / self.entry_zscore, 1.0)
             confidence = float(0.2 + 0.6 * dislocation_intensity)
 

@@ -9,7 +9,6 @@ import numpy as np
 import scipy.cluster.hierarchy as sch
 from scipy.spatial.distance import squareform
 
-
 class HierarchicalRiskParity:
     """
     Constructs an HRP portfolio through tree clustering, quasi-diagonalization,
@@ -60,22 +59,18 @@ class HierarchicalRiskParity:
         if N == 1:
             return np.array([1.0])
 
-        # Compute correlation matrix
         std = np.sqrt(np.diag(covariance))
         inv_std = 1.0 / np.maximum(std, 1e-8)
         corr = np.outer(inv_std, inv_std) * covariance
         np.fill_diagonal(corr, 1.0)
         corr = np.clip(corr, -1.0, 1.0)
 
-        # 1. Tree Clustering
         dist = cls._correlation_distance(corr)
         dist_condensed = squareform(dist, checks=False)
         link = sch.linkage(dist_condensed, method="single")
 
-        # 2. Quasi-Diagonalization
         sorted_indices = cls._quasi_diagonalize(link)
 
-        # 3. Recursive Bisection
         weights = np.ones(N)
         clusters = [sorted_indices]
 

@@ -8,7 +8,6 @@ from typing import Dict, List, Optional
 import pandas as pd
 from ramp.core.types import SignalView
 
-
 class BaseSignal(ABC):
     """
     Abstract interface for cross-asset alpha signals.

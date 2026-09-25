@@ -6,7 +6,6 @@ from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 from ramp.core.types import Fill, Order, Position
 
-
 class BaseBroker(ABC):
     """Abstract broker interface for live and paper trading."""
 
@@ -21,7 +20,6 @@ class BaseBroker(ABC):
     @abstractmethod
     def submit_order(self, order: Order) -> Fill:
         pass
-
 
 class SimulatedPaperBroker(BaseBroker):
     """
@@ -43,7 +41,7 @@ class SimulatedPaperBroker(BaseBroker):
 
     def submit_order(self, order: Order) -> Fill:
         self.orders.append(order)
-        # Mock execution at nominal price
+
         fill_price = order.limit_price or 100.0
         fill = Fill(
             fill_id=f"paper_fill_{len(self.fills) + 1}",

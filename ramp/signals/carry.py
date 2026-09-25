@@ -10,7 +10,6 @@ import pandas as pd
 from ramp.core.types import SignalView
 from ramp.signals.base import BaseSignal
 
-
 class CrossAssetCarrySignal(BaseSignal):
     """
     Computes carry estimates across asset classes.
@@ -36,14 +35,11 @@ class CrossAssetCarrySignal(BaseSignal):
                 views[symbol] = SignalView(symbol=symbol, expected_return=0.0, confidence=0.1)
                 continue
 
-            # Estimate carry proxy based on asset classification / 63-day trend in yield
-            # For futures ETFs like DBC / GLD, roll yield can be estimated from 63-day return minus spot return
-            # Or continuous basis if roll_gap column exists
             if "roll_gap" in sym_df.columns:
                 recent_basis = sym_df["roll_gap"].iloc[-21:].mean()
-                carry_est = float(recent_basis * 12)  # Annualized roll yield
+                carry_est = float(recent_basis * 12)                         
             else:
-                # Empirical carry heuristic: 63d price change relative to 252d moving average
+
                 closes = sym_df["close"].values
                 ret_63 = (closes[-1] - closes[-min(len(closes), 63)]) / closes[-min(len(closes), 63)]
                 carry_est = float(ret_63 * 0.5)

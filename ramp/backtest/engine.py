@@ -18,7 +18,6 @@ from ramp.regimes.base import BaseRegimeDetector
 from ramp.regimes.filter import RegimeHysteresisFilter
 from ramp.signals.base import BaseSignal
 
-
 class EventDrivenBacktestEngine:
     """
     Simulates the research-to-execution pipeline under realistic market frictions.
@@ -34,7 +33,7 @@ class EventDrivenBacktestEngine:
         vol_targeting: Optional[VolatilityTargetingEngine] = None,
         cost_model: Optional[ExecutionCostModel] = None,
         initial_capital: float = 1000000.0,
-        rebalance_frequency_bars: int = 5,  # Weekly rebalance default
+        rebalance_frequency_bars: int = 5,                            
         burn_in_bars: int = 60
     ):
         self.symbols = symbols
@@ -49,7 +48,6 @@ class EventDrivenBacktestEngine:
         self.rebalance_frequency = rebalance_frequency_bars
         self.burn_in_bars = burn_in_bars
 
-        # State records
         self.weights_history: List[Dict] = []
         self.regimes_history: List[Dict] = []
         self.turnover_accumulator: float = 0.0
@@ -64,18 +62,16 @@ class EventDrivenBacktestEngine:
         if len(unique_dates) <= self.burn_in_bars:
             raise ValueError(f"Need at least {self.burn_in_bars + 10} dates, got {len(unique_dates)}")
 
-        # Fit initial regime detector on burn-in window
         burn_in_dates = unique_dates[:self.burn_in_bars]
         burn_in_df = df[df["timestamp"].isin(burn_in_dates)]
         pivoted_burn_in = burn_in_df.pivot(index="timestamp", columns="symbol", values="close").pct_change().dropna()
-        
+
         feature_burn_in = pd.DataFrame({
             "ret": pivoted_burn_in.mean(axis=1),
             "vol": pivoted_burn_in.std(axis=1) * np.sqrt(252)
         })
         self.regime_detector.fit(feature_burn_in)
 
-        # Simulation loop over remaining out-of-sample dates
         oos_dates = unique_dates[self.burn_in_bars:]
         current_target_weights = np.zeros(len(self.symbols))
         pending_orders: List[Order] = []
@@ -86,13 +82,12 @@ class EventDrivenBacktestEngine:
             current_opens = dict(zip(current_bar_slice["symbol"], current_bar_slice["open"]))
             current_volumes = dict(zip(current_bar_slice["symbol"], current_bar_slice["volume"]))
 
-            # 1. Execute any pending orders from yesterday's close at today's OPEN
             if pending_orders:
                 for order in pending_orders:
                     sym = order.symbol
                     open_p = current_opens.get(sym, current_prices.get(sym, 100.0))
                     vol = current_volumes.get(sym, 1000000.0)
-                    
+
                     exec_qty, fill_p, comm, slip = self.cost_model.calculate_fill(
                         side=order.side,
                         requested_qty=order.quantity,
@@ -117,23 +112,20 @@ class EventDrivenBacktestEngine:
 
                 pending_orders = []
 
-            # 2. Daily interest accrual and mark-to-market at CLOSE
             self.ledger.accrue_daily_interest(current_dt)
             nav_record = self.ledger.mark_to_market(current_dt, current_prices)
             current_nav = nav_record["total_nav"]
 
-            # 3. Check if today is a rebalance day
             if i % self.rebalance_frequency == 0 and i < len(oos_dates) - 1:
-                # Historical window strictly up to current date close
+
                 hist_window = df[df["timestamp"] <= current_dt]
                 piv_hist = hist_window.pivot(index="timestamp", columns="symbol", values="close").dropna()
-                
+
                 if len(piv_hist) >= 30:
                     ret_matrix = piv_hist[self.symbols].pct_change().dropna().values
                     recent_rets = ret_matrix[-63:]
                     cov_matrix = np.cov(recent_rets, rowvar=False)
 
-                    # Online Hamilton Regime Filtering
                     today_feature = np.array([
                         float(np.mean(recent_rets[-1])),
                         float(np.std(recent_rets[-1]) * np.sqrt(252))
@@ -149,7 +141,6 @@ class EventDrivenBacktestEngine:
                         "probabilities": regime_state.probabilities
                     })
 
-                    # Aggregate Signals
                     composite_views = {}
                     for sig in self.signals:
                         views = sig.generate_views(hist_window, current_dt, self.symbols)
@@ -157,13 +148,12 @@ class EventDrivenBacktestEngine:
                             if sym not in composite_views:
                                 composite_views[sym] = v
                             else:
-                                # Weighted average blend
+
                                 prev = composite_views[sym]
                                 blended_ret = 0.5 * prev.expected_return + 0.5 * v.expected_return
                                 blended_conf = 0.5 * prev.confidence + 0.5 * v.confidence
                                 composite_views[sym] = v
 
-                    # Regime-Conditioned Black-Litterman
                     mu_post, V_post = self.bl.compute_posterior(
                         symbols=self.symbols,
                         covariance=cov_matrix,
@@ -171,17 +161,14 @@ class EventDrivenBacktestEngine:
                         regime=regime_state
                     )
 
-                    # Convex Optimization with Turnover Penalty
                     target_w = self.optimizer.optimize(
                         mu=mu_post,
                         covariance=V_post,
                         current_weights=current_target_weights
                     )
 
-                    # Volatility Targeting & Cash Buffer
                     scaled_w, cash_w, port_vol = self.vol_targeting.apply_vol_target(target_w, V_post)
 
-                    # Track turnover
                     turnover_step = float(np.sum(np.abs(scaled_w - current_target_weights)))
                     self.turnover_accumulator += turnover_step
                     current_target_weights = scaled_w
@@ -191,7 +178,6 @@ class EventDrivenBacktestEngine:
                         weight_entry[sym] = float(scaled_w[s_idx])
                     self.weights_history.append(weight_entry)
 
-                    # Generate rebalance orders to fill at next Open
                     for s_idx, sym in enumerate(self.symbols):
                         target_dollar = current_nav * scaled_w[s_idx]
                         price_now = current_prices.get(sym, 100.0)
@@ -212,7 +198,6 @@ class EventDrivenBacktestEngine:
                             )
                             pending_orders.append(order)
 
-        # Finalize and calculate metrics
         history_df = self.ledger.get_history_df()
         years = len(oos_dates) / 252.0
         ann_turnover = self.turnover_accumulator / max(years, 0.1)

@@ -8,7 +8,6 @@ import cvxpy as cp
 import numpy as np
 from ramp.portfolio.hrp import HierarchicalRiskParity
 
-
 class RobustConvexOptimizer:
     """
     Convex portfolio optimizer with explicit L1 turnover regularization.
@@ -48,21 +47,18 @@ class RobustConvexOptimizer:
         else:
             w_prev = current_weights.copy()
 
-        # Regularize covariance to guarantee positive semi-definiteness
         Sigma = covariance + np.eye(N) * 1e-6
 
         w = cp.Variable(N)
 
-        # Objective terms
         risk_term = 0.5 * self.gamma * cp.quad_form(w, Sigma)
         return_term = mu @ w
         turnover_term = self.turnover_lambda * cp.norm1(w - w_prev)
 
         objective = cp.Minimize(risk_term - return_term + turnover_term)
 
-        # Constraints
         constraints = [
-            cp.sum(w) <= 1.0,  # Cash buffer allowed
+            cp.sum(w) <= 1.0,                       
         ]
 
         if not self.allow_shorting:
@@ -73,7 +69,6 @@ class RobustConvexOptimizer:
             constraints.append(w <= self.max_position_weight)
             constraints.append(cp.norm1(w) <= self.gross_leverage_limit)
 
-        # Asset class grouping constraints
         if asset_class_map:
             for class_name, indices in asset_class_map.items():
                 if indices:
@@ -85,11 +80,10 @@ class RobustConvexOptimizer:
             prob.solve(solver=cp.CLARABEL, verbose=False)
             if prob.status in ["optimal", "optimal_inaccurate"] and w.value is not None:
                 weights = np.array(w.value).reshape(-1)
-                # Clean numerical noise
+
                 weights = np.where(np.abs(weights) < 1e-4, 0.0, weights)
                 return weights
         except Exception:
             pass
 
-        # Robust Fallback: Hierarchical Risk Parity
         return HierarchicalRiskParity.allocate(covariance)

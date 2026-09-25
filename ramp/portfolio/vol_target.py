@@ -6,7 +6,6 @@ Dynamically scales portfolio leverage and cash buffer to maintain a constant ris
 from typing import Tuple
 import numpy as np
 
-
 class VolatilityTargetingEngine:
     """
     Enforces a constant target annualized volatility (e.g. 10%).
@@ -30,20 +29,17 @@ class VolatilityTargetingEngine:
         if np.all(weights == 0.0):
             return weights, 1.0, 0.0
 
-        # Portfolio ex-ante variance: w^T * Sigma * w * 252
         portfolio_var = float(weights.T @ covariance @ weights) * 252.0
         portfolio_vol = np.sqrt(max(portfolio_var, 1e-8))
 
         if portfolio_vol <= 1e-4:
             return weights, float(1.0 - np.sum(weights)), 0.0
 
-        # Target scaling factor
         scale = self.target_annual_vol / portfolio_vol
         scale = min(scale, self.max_leverage)
 
         scaled_weights = weights * scale
 
-        # Ensure gross weights do not exceed leverage limit
         gross_w = np.sum(np.abs(scaled_weights))
         if gross_w > self.max_leverage:
             scaled_weights *= (self.max_leverage / gross_w)

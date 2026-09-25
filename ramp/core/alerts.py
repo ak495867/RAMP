@@ -4,12 +4,10 @@ from typing import Dict, List, Optional
 import json
 import requests
 
-
 class AlertSeverity(str, Enum):
     INFO = "INFO"
     WARNING = "WARNING"
     CRITICAL = "CRITICAL"
-
 
 class MultiChannelAlertManager:
 

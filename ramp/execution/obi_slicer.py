@@ -2,14 +2,12 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional
 from ramp.core.types import OrderSide
 
-
 @dataclass
 class MicrostructureDecision:
     action: str
     target_price_offset_bps: float
     urgency_multiplier: float
     order_book_imbalance: float
-
 
 class OrderBookImbalanceSlicer:
 

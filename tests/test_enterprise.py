@@ -12,7 +12,6 @@ from ramp.signals.factor_pruning import DynamicFactorPruner
 from ramp.core.alerts import MultiChannelAlertManager, AlertSeverity
 from ramp.core.types import Order, OrderSide, OrderType, Position
 
-
 def test_portfolio_drift_reconciler():
     reconciler = PortfolioDriftReconciler(drift_tolerance_pct=0.02, min_trade_dollar=50.0)
     current_positions = {
@@ -31,7 +30,6 @@ def test_portfolio_drift_reconciler():
     assert drift_map["GLD"] == 0.20
     assert len(orders) == 2
 
-
 def test_alpaca_broker_gateway():
     gateway = AlpacaBrokerGateway(is_paper=True)
     assert gateway.get_nav() == 1000000.0
@@ -44,7 +42,6 @@ def test_alpaca_broker_gateway():
     positions = gateway.get_positions()
     assert "SPY" in positions
     assert positions["SPY"].quantity == 100
-
 
 def test_order_book_imbalance_slicer():
     slicer = OrderBookImbalanceSlicer(strong_imbalance_threshold=0.30)
@@ -68,7 +65,6 @@ def test_order_book_imbalance_slicer():
     assert decision_buy_bearish.action == "PASSIVE_WAIT_PULLBACK"
     assert decision_buy_bearish.urgency_multiplier < 1.0
 
-
 def test_cot_positioning_signal():
     signal = COTPositioningSignal(crowding_threshold_z=2.0)
     dates = pd.date_range("2024-01-01", periods=60, freq="W")
@@ -82,7 +78,6 @@ def test_cot_positioning_signal():
     assert "SPY" in views
     assert views["SPY"].expected_return < 0.0
 
-
 def test_hsmm_regime_filtering():
     hsmm = HiddenSemiMarkovModel()
     rng = np.random.default_rng(42)
@@ -93,11 +88,10 @@ def test_hsmm_regime_filtering():
     assert state.regime_id in [0, 1, 2]
     assert 0.0 <= sum(state.probabilities.values()) <= 1.0001
 
-
 def test_dynamic_factor_pruner():
     pruner = DynamicFactorPruner(min_ir_threshold=0.20)
     dates = pd.date_range("2024-01-01", periods=50, freq="B")
-    
+
     signals = pd.DataFrame({
         "good_factor": np.linspace(1, 50, 50),
         "decayed_factor": np.random.default_rng(42).normal(0, 1, 50)
@@ -110,11 +104,10 @@ def test_dynamic_factor_pruner():
 
     health = pruner.evaluate_factor_health(signals, fwd_returns)
     assert health["good_factor"]["is_active"]
-    
+
     weights = {"good_factor": 0.5, "decayed_factor": 0.5}
     pruned = pruner.compute_pruned_factor_weights(weights, health)
     assert pruned["good_factor"] > pruned["decayed_factor"]
-
 
 def test_multi_channel_alert_manager():
     alert_mgr = MultiChannelAlertManager()

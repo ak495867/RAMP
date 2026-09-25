@@ -22,16 +22,13 @@ app = FastAPI(
     version="0.1.0"
 )
 
-# Global in-memory state
 broker = SimulatedPaperBroker(initial_cash=1000000.0)
-
 
 class BacktestRequest(BaseModel):
     symbols: List[str] = ["SPY", "TLT", "GLD", "BTC-USD"]
     n_bars: int = 250
     rebalance_freq: int = 5
     initial_capital: float = 1000000.0
-
 
 @app.get("/")
 def root():
@@ -41,11 +38,9 @@ def root():
         "timestamp": datetime.utcnow().isoformat()
     }
 
-
 @app.get("/api/v1/health")
 def health_check():
     return {"status": "healthy", "service": "ramp-engine", "uptime": "ok"}
-
 
 @app.get("/api/v1/broker/portfolio")
 def get_portfolio():
@@ -60,7 +55,6 @@ def get_portfolio():
         "cash": broker.cash,
         "positions": pos_data
     }
-
 
 @app.post("/api/v1/backtest/run")
 def run_backtest_endpoint(req: BacktestRequest):

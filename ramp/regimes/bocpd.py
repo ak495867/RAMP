@@ -11,7 +11,6 @@ import scipy.stats as stats
 from ramp.core.types import RegimeState
 from ramp.regimes.base import BaseRegimeDetector
 
-
 class BayesianOnlineChangePointDetector(BaseRegimeDetector):
     """
     Online Bayesian Change-Point Detection with constant hazard rate.
@@ -32,19 +31,16 @@ class BayesianOnlineChangePointDetector(BaseRegimeDetector):
         self.hazard_rate = hazard_rate
         self.max_run_length = max_run_length
 
-        # Prior hyperparameters for Normal-Inverse-Gamma conjugate model
         self.mu_0 = mu_0
         self.kappa_0 = kappa_0
         self.alpha_0 = alpha_0
         self.beta_0 = beta_0
 
-        # Sufficient statistics arrays
         self.mu_t = np.array([mu_0])
         self.kappa_t = np.array([kappa_0])
         self.alpha_t = np.array([alpha_0])
         self.beta_t = np.array([beta_0])
 
-        # Run-length posterior distribution: initially P(r_0 = 0) = 1
         self.R = np.array([1.0])
 
     def fit(self, features) -> "BayesianOnlineChangePointDetector":
@@ -69,50 +65,42 @@ class BayesianOnlineChangePointDetector(BaseRegimeDetector):
         """
         x = float(np.asarray(current_features).reshape(-1)[0])
 
-        # 1. Predictive distribution: Student-t distribution for NIG conjugate prior
         df = 2.0 * self.alpha_t
         loc = self.mu_t
         scale = np.sqrt(self.beta_t * (self.kappa_t + 1.0) / (self.alpha_t * self.kappa_t))
         pred_probs = stats.t.pdf(x, df=df, loc=loc, scale=scale)
         pred_probs = np.maximum(pred_probs, 1e-12)
 
-        # 2. Calculate growth probabilities and changepoint probability
         H = self.hazard_rate
         growth_probs = self.R * pred_probs * (1.0 - H)
         cp_prob = np.sum(self.R * pred_probs * H)
 
-        # 3. Form new run-length posterior
         new_R = np.empty(len(self.R) + 1)
         new_R[0] = cp_prob
         new_R[1:] = growth_probs
 
-        # Normalize
         total = np.sum(new_R)
         if total > 0:
             new_R /= total
         else:
             new_R = np.ones_like(new_R) / len(new_R)
 
-        # Truncate if exceeding max_run_length
         if len(new_R) > self.max_run_length:
             new_R = new_R[:self.max_run_length]
             new_R /= np.sum(new_R)
 
         self.R = new_R
 
-        # 4. Update sufficient statistics
         new_mu = np.empty(len(self.R))
         new_kappa = np.empty(len(self.R))
         new_alpha = np.empty(len(self.R))
         new_beta = np.empty(len(self.R))
 
-        # Reset state at r=0
         new_mu[0] = self.mu_0
         new_kappa[0] = self.kappa_0
         new_alpha[0] = self.alpha_0
         new_beta[0] = self.beta_0
 
-        # Growth states r > 0
         old_k = self.kappa_t[:len(self.R) - 1]
         old_m = self.mu_t[:len(self.R) - 1]
         old_a = self.alpha_t[:len(self.R) - 1]
@@ -128,7 +116,6 @@ class BayesianOnlineChangePointDetector(BaseRegimeDetector):
         self.alpha_t = new_alpha
         self.beta_t = new_beta
 
-        # Changepoint probability is probability mass at small run length (r <= 2)
         break_prob = float(np.sum(self.R[:min(3, len(self.R))]))
         break_prob = min(max(break_prob, 0.0), 1.0)
         stable_prob = 1.0 - break_prob

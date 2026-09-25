@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 from ramp.core.types import RegimeState
 
-
 class BaseRegimeDetector(ABC):
     """
     Abstract interface for online causal regime detectors.

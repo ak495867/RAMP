@@ -10,7 +10,6 @@ from ramp.execution.compliance import PreTradeComplianceEngine
 from ramp.execution.almgren_chriss import AlmgrenChrissExecutionOptimizer
 from ramp.core.types import Order, OrderSide, OrderType
 
-
 def test_marchenko_pastur_rmt_denoising():
     rng = np.random.default_rng(42)
     n_assets = 20
@@ -28,11 +27,10 @@ def test_marchenko_pastur_rmt_denoising():
     assert shrunk_cov.shape == (n_assets, n_assets)
     assert 0.0 <= intensity <= 1.0
 
-
 def test_barra_factor_risk_decomposition():
     rng = np.random.default_rng(101)
     dates = pd.date_range("2024-01-01", periods=150, freq="B")
-    
+
     asset_rets = pd.DataFrame(
         rng.normal(0.0005, 0.015, size=(150, 5)),
         index=dates,
@@ -59,7 +57,6 @@ def test_barra_factor_risk_decomposition():
     assert "specific_risk_pct" in decomp
     assert pytest.approx(decomp["systematic_risk_pct"] + decomp["specific_risk_pct"], abs=0.5) == 100.0
 
-
 def test_macro_quadrant_and_yield_curve_pca():
     classifier = MacroQuadrantClassifier()
     features = pd.DataFrame({
@@ -85,7 +82,6 @@ def test_macro_quadrant_and_yield_curve_pca():
     transformed = pca.transform(np.array([0.041, 0.043, 0.046, 0.049]))
     assert "level" in transformed
     assert "slope" in transformed
-
 
 def test_pre_trade_compliance_engine():
     compliance = PreTradeComplianceEngine(
@@ -122,7 +118,6 @@ def test_pre_trade_compliance_engine():
     assert not kill_res.is_compliant
     assert kill_res.kill_switch_active
     assert len(kill_res.clamped_orders) == 0
-
 
 def test_almgren_chriss_execution():
     optimizer = AlmgrenChrissExecutionOptimizer()

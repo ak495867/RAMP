@@ -4,7 +4,6 @@ import requests
 from ramp.core.types import Fill, Order, OrderSide, OrderType, Position
 from ramp.paper.simulated_broker import BaseBroker
 
-
 class AlpacaBrokerGateway(BaseBroker):
 
     def __init__(

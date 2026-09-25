@@ -3,7 +3,6 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 
-
 class DynamicFactorPruner:
 
     def __init__(self, min_ir_threshold: float = 0.20, lookback_bars: int = 63):

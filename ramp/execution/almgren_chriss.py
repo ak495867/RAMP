@@ -1,7 +1,6 @@
 from typing import Dict, List, Tuple
 import numpy as np
 
-
 class AlmgrenChrissExecutionOptimizer:
 
     def __init__(

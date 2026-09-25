@@ -1,7 +1,6 @@
 from typing import Dict, List, Optional
 import numpy as np
 
-
 class IntradayVolumeProfiler:
 
     DEFAULT_30MIN_WEIGHTS = np.array([
@@ -32,7 +31,6 @@ class IntradayVolumeProfiler:
         if total_vol > 0:
             self.profile = mean_volumes / total_vol
         return self
-
 
 class UShapedVWAPSlicer:
 

@@ -14,7 +14,6 @@ from ramp.execution.cost_model import ExecutionCostModel
 from ramp.core.types import Fill, Order, OrderSide, OrderType
 from ramp.backtest.metrics import PerformanceMetricsCalculator
 
-
 class BenchmarkEvaluator:
     """
     Simulates benchmark allocations under the same non-linear transaction cost and latency model.
@@ -38,7 +37,7 @@ class BenchmarkEvaluator:
 
         pending_orders: List[Order] = []
         turnover_acc = 0.0
-        current_target_w = np.array([0.0, 0.0])  # [SPY, TLT]
+        current_target_w = np.array([0.0, 0.0])              
 
         for i, dt in enumerate(dates):
             current_slice = df[df["timestamp"] == dt]
@@ -46,7 +45,6 @@ class BenchmarkEvaluator:
             opens = dict(zip(current_slice["symbol"], current_slice["open"]))
             vols = dict(zip(current_slice["symbol"], current_slice["volume"]))
 
-            # Execute pending orders at today's OPEN
             for order in pending_orders:
                 sym = order.symbol
                 open_p = opens.get(sym, prices.get(sym, 100.0))
@@ -73,7 +71,6 @@ class BenchmarkEvaluator:
             nav_record = ledger.mark_to_market(dt, prices)
             nav = nav_record["total_nav"]
 
-            # Rebalance
             if i % rebalance_freq_bars == 0 and i < len(dates) - 1:
                 target_w = np.array([0.60, 0.40])
                 turnover_acc += float(np.sum(np.abs(target_w - current_target_w)))
@@ -155,11 +152,10 @@ class BenchmarkEvaluator:
             nav_record = ledger.mark_to_market(dt, prices)
             nav = nav_record["total_nav"]
 
-            # Compute inverse volatility weights
             if i % rebalance_freq_bars == 0 and i >= lookback_vol and i < len(dates) - 1:
                 hist_window = df[df["timestamp"] <= dt]
                 piv = hist_window.pivot(index="timestamp", columns="symbol", values="close")
-                
+
                 inv_vols = []
                 for s in symbols:
                     if s in piv.columns and len(piv[s].dropna()) >= lookback_vol:

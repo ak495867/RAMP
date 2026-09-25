@@ -2,7 +2,6 @@ from typing import Tuple
 import numpy as np
 from sklearn.covariance import LedoitWolf
 
-
 class HighDimensionalCovarianceEstimator:
 
     @staticmethod

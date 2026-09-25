@@ -6,7 +6,6 @@ from sklearn.decomposition import PCA
 from ramp.core.types import RegimeState
 from ramp.regimes.base import BaseRegimeDetector
 
-
 class MacroQuadrantClassifier(BaseRegimeDetector):
 
     def __init__(self, growth_lookback: int = 63, inflation_lookback: int = 63):
@@ -59,7 +58,6 @@ class MacroQuadrantClassifier(BaseRegimeDetector):
             is_transition=False,
             entropy=float(-0.85 * np.log(0.85) - 3 * 0.05 * np.log(0.05))
         )
-
 
 class YieldCurvePCA:
 

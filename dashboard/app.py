@@ -33,7 +33,6 @@ st.set_page_config(
 st.title(" RAMP: Regime-Adaptive Multi-Asset Platform")
 st.caption("Research-to-Production Platform: Causal Online Regimes, Convex Optimization & Realistic Market Impact")
 
-# Sidebar Controls
 st.sidebar.header("Data Feed & Universe")
 data_source = st.sidebar.radio(
     "Data Source",
@@ -53,7 +52,6 @@ turnover_penalty = st.sidebar.slider("Turnover L1 Penalty (Lambda)", min_value=0
 market_impact_y = st.sidebar.slider("Kyle/Almgren Impact Coefficient Y", min_value=0.00, max_value=0.40, value=0.15, step=0.05)
 
 run_button = st.sidebar.button(" Run Event-Driven Backtest", use_container_width=True)
-
 
 @st.cache_data
 def run_simulation(data_mode, symbols, freq, vol, lmbda, y_impact):
@@ -93,7 +91,6 @@ def run_simulation(data_mode, symbols, freq, vol, lmbda, y_impact):
     results = engine.run(bars_df)
     return results, bars_df
 
-
 if run_button or "results" not in st.session_state:
     with st.spinner("Executing point-in-time simulation & causal filtering..."):
         results, bars_df = run_simulation(
@@ -109,7 +106,6 @@ weights = results["weights"]
 regimes = results["regimes"]
 fills = results["fills"]
 
-# Top Level KPI Row
 c1, c2, c3, c4, c5, c6 = st.columns(6)
 c1.metric("CAGR", f"{metrics.get('cagr', 0)*100:.1f}%")
 c2.metric("Sharpe Ratio", f"{metrics.get('sharpe_ratio', 0):.2f}")
@@ -166,8 +162,7 @@ with tab2:
     if not regimes.empty:
         regime_names_map = {0: "Low-Vol Expansion", 1: "High-Vol Contraction", 2: "Crisis / Liquidity Shock"}
         regimes["regime_label"] = regimes["regime_id"].map(regime_names_map)
-        
-        # Timeline
+
         fig_regime = px.scatter(
             regimes, x="timestamp", y="regime_label",
             color="regime_label",

@@ -12,7 +12,6 @@ from ramp.regimes.bocpd import BayesianOnlineChangePointDetector
 from ramp.regimes.filter import RegimeHysteresisFilter
 from ramp.data.collectors.synthetic import SyntheticRegimeDataGenerator
 
-
 @pytest.fixture
 def synthetic_data():
     gen = SyntheticRegimeDataGenerator(seed=123)
@@ -25,7 +24,6 @@ def synthetic_data():
     })
     return features
 
-
 def test_online_hamilton_filter_causality(synthetic_data):
     features = synthetic_data
     burn_in = features.iloc[:150]
@@ -35,11 +33,10 @@ def test_online_hamilton_filter_causality(synthetic_data):
     hmm.fit(burn_in)
 
     assert hmm.is_fitted
-    # State ordering canonicalization: variances must be monotonically non-decreasing
+
     variances = [np.trace(cov) for cov in hmm.covariances]
     assert variances[0] <= variances[1] <= variances[2]
 
-    # Process step-by-step causally
     states = []
     for dt, row in out_of_sample.iterrows():
         state = hmm.filter_step(row.values, dt)
@@ -51,10 +48,9 @@ def test_online_hamilton_filter_causality(synthetic_data):
 
     assert len(states) == len(out_of_sample)
 
-
 def test_bocpd_changepoint_detection():
     bocpd = BayesianOnlineChangePointDetector(hazard_rate=0.02)
-    # Generate stable distribution then sudden massive shock
+
     rng = np.random.default_rng(42)
     stable_period = rng.normal(0.001, 0.01, size=100)
     shock_period = rng.normal(-0.08, 0.05, size=10)
@@ -69,34 +65,28 @@ def test_bocpd_changepoint_detection():
         state = bocpd.filter_step(np.array([val]), dt)
         states.append(state)
 
-    # During the shock period, changepoint probability should spike
     shock_states = states[100:]
     max_break_prob = max(s.probabilities[1] for s in shock_states)
     assert max_break_prob > 0.40
-
 
 def test_hysteresis_filter_prevents_whipsaw():
     hyst = RegimeHysteresisFilter(confidence_threshold=0.70, min_dwell_bars=3)
     dt = datetime(2026, 1, 1)
 
-    # Initial state: regime 0 with 0.90 prob
     s1 = RegimeState(dt, 0, "low_vol", {0: 0.90, 1: 0.10, 2: 0.0}, False, 0.2)
     out1 = hyst.filter(s1)
     assert out1.regime_id == 0
 
-    # Next bar: weak candidate switch to regime 1 with 0.55 prob (below threshold 0.70)
     dt += timedelta(days=1)
     s2 = RegimeState(dt, 1, "high_vol", {0: 0.45, 1: 0.55, 2: 0.0}, False, 0.6)
     out2 = hyst.filter(s2)
-    assert out2.regime_id == 0  # Should NOT switch!
+    assert out2.regime_id == 0                      
 
-    # Next bar: candidate switch to regime 1 with 0.85 prob, BUT dwell is only 2 bars (< 3 bars)
     dt += timedelta(days=1)
     s3 = RegimeState(dt, 1, "high_vol", {0: 0.15, 1: 0.85, 2: 0.0}, False, 0.4)
     out3 = hyst.filter(s3)
-    assert out3.regime_id == 0  # Should STILL NOT switch because dwell < 3
+    assert out3.regime_id == 0                                             
 
-    # 4th bar: dwell >= 3 and high confidence -> NOW it switches!
     dt += timedelta(days=1)
     s4 = RegimeState(dt, 1, "high_vol", {0: 0.10, 1: 0.90, 2: 0.0}, False, 0.3)
     out4 = hyst.filter(s4)

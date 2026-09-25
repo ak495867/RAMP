@@ -8,7 +8,6 @@ from typing import Dict, List, Optional
 import pandas as pd
 from ramp.core.types import Fill, OrderSide, Position
 
-
 class PortfolioLedger:
     """
     Maintains the state of capital, open positions, borrowing costs, and transaction history.
@@ -35,14 +34,14 @@ class PortfolioLedger:
 
         if fill.side == OrderSide.BUY:
             self.cash -= (cost + fill.commission)
-            # Update weighted average cost basis
+
             new_qty = pos.quantity + fill.quantity
             if new_qty > 0:
                 pos.avg_price = (pos.quantity * pos.avg_price + cost) / new_qty
             pos.quantity = new_qty
-        else:  # OrderSide.SELL
+        else:                  
             self.cash += (cost - fill.commission)
-            # Realized P&L
+
             realized = (fill.price - pos.avg_price) * fill.quantity
             pos.realized_pnl += realized
             pos.quantity -= fill.quantity

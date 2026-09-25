@@ -5,7 +5,6 @@ import scipy.stats as stats
 from ramp.core.types import RegimeState
 from ramp.regimes.base import BaseRegimeDetector
 
-
 class HiddenSemiMarkovModel(BaseRegimeDetector):
 
     def __init__(

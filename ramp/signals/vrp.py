@@ -10,7 +10,6 @@ import pandas as pd
 from ramp.core.types import SignalView
 from ramp.signals.base import BaseSignal
 
-
 class VolatilityRiskPremiumSignal(BaseSignal):
     """
     Computes VRP = Implied Volatility - Realized Volatility.
@@ -32,7 +31,6 @@ class VolatilityRiskPremiumSignal(BaseSignal):
         views: Dict[str, SignalView] = {}
         df = bars_history[bars_history["timestamp"] <= as_of_date]
 
-        # Check if target equity exists
         eq_df = df[df["symbol"] == self.target_equity_sym].sort_values("timestamp")
         if len(eq_df) < self.rv_lookback + 5:
             for s in symbols:
@@ -43,25 +41,23 @@ class VolatilityRiskPremiumSignal(BaseSignal):
         daily_ret = np.diff(closes) / closes[:-1]
         rv = float(np.std(daily_ret[-self.rv_lookback:]) * np.sqrt(252))
 
-        # Proxy for IV if VIX is not explicitly in dataset: Garman-Klass or rolling max vol
-        # Or look for ^VIX in bars
         vix_df = df[df["symbol"] == "^VIX"].sort_values("timestamp")
         if not vix_df.empty and len(vix_df) > 0:
             iv = float(vix_df["close"].iloc[-1]) / 100.0
         else:
-            # IV is historically ~1.15 to 1.25x realized volatility in normal times
+
             iv = rv * 1.15
 
         vrp_spread = iv - rv
 
         for symbol in symbols:
-            # If VRP is positive and healthy (> 2% spread), positive risk appetite
+
             if vrp_spread > 0.02:
-                # Risk assets benefit, defensive assets neutral
+
                 exp_ret = 0.08 if symbol in ["SPY", "QQQ", "BTC-USD"] else -0.02
                 conf = 0.65
             elif vrp_spread < -0.02:
-                # Volatility shock / panic (RV > IV): risk-off, bonds & gold benefit
+
                 exp_ret = -0.15 if symbol in ["SPY", "QQQ", "IWM", "BTC-USD"] else 0.10
                 conf = 0.85
             else:

@@ -8,7 +8,6 @@ from itertools import combinations
 from typing import Dict, List, Tuple
 import numpy as np
 
-
 class ProbabilityOfBacktestOverfitting:
     """
     Evaluates selection bias across a matrix of backtested strategy variants.
@@ -40,26 +39,22 @@ class ProbabilityOfBacktestOverfitting:
             train_rets = np.concatenate([slices[i] for i in train_combo], axis=0)
             test_rets = np.concatenate([slices[i] for i in test_combo], axis=0)
 
-            # In-sample Sharpe ratio for each model
             is_means = np.mean(train_rets, axis=0)
             is_stds = np.std(train_rets, axis=0, ddof=1)
             is_sharpes = is_means / np.maximum(is_stds, 1e-6)
 
             best_model_idx = int(np.argmax(is_sharpes))
 
-            # Out-of-sample Sharpe ratios
             oos_means = np.mean(test_rets, axis=0)
             oos_stds = np.std(test_rets, axis=0, ddof=1)
             oos_sharpes = oos_means / np.maximum(oos_stds, 1e-6)
 
-            # Rank of best IS model in OOS
             sorted_oos_ranks = np.argsort(np.argsort(oos_sharpes))
-            relative_rank = sorted_oos_ranks[best_model_idx] / (N - 1.0)  # 0.0 (worst) to 1.0 (best)
+            relative_rank = sorted_oos_ranks[best_model_idx] / (N - 1.0)                             
 
             if relative_rank < 0.5:
                 underperform_count += 1
 
-            # Logit transformation
             rank_clamped = min(max(relative_rank, 1e-4), 1.0 - 1e-4)
             logit = np.log(rank_clamped / (1.0 - rank_clamped))
             logits.append(logit)

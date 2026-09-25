@@ -12,13 +12,11 @@ from ramp.signals.carry import CrossAssetCarrySignal
 from ramp.signals.mean_reversion import MeanReversionSignal
 from ramp.signals.vrp import VolatilityRiskPremiumSignal
 
-
 @pytest.fixture
 def market_history():
     gen = SyntheticRegimeDataGenerator(seed=42)
     bars, _ = gen.generate_universe(["SPY", "TLT", "GLD", "BTC-USD"], n_bars=300)
     return bars
-
 
 def test_tsmom_signal(market_history):
     as_of = market_history["timestamp"].max()
@@ -33,7 +31,6 @@ def test_tsmom_signal(market_history):
         assert 0.0 < view.confidence <= 1.0
         assert -0.40 <= view.expected_return <= 0.40
 
-
 def test_carry_signal(market_history):
     as_of = market_history["timestamp"].max()
     symbols = ["SPY", "TLT", "GLD"]
@@ -46,7 +43,6 @@ def test_carry_signal(market_history):
         assert not np.isnan(view.expected_return)
         assert 0.0 <= view.confidence <= 1.0
 
-
 def test_mean_reversion_signal(market_history):
     as_of = market_history["timestamp"].max()
     symbols = ["SPY", "TLT"]
@@ -58,7 +54,6 @@ def test_mean_reversion_signal(market_history):
         view = views[sym]
         assert not np.isnan(view.expected_return)
         assert abs(view.expected_return) <= 0.25
-
 
 def test_vrp_signal(market_history):
     as_of = market_history["timestamp"].max()

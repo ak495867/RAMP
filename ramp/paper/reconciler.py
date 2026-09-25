@@ -2,7 +2,6 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 from ramp.core.types import Order, OrderSide, OrderType, Position
 
-
 class PortfolioDriftReconciler:
 
     def __init__(self, drift_tolerance_pct: float = 0.01, min_trade_dollar: float = 100.0):

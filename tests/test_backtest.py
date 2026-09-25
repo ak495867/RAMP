@@ -15,7 +15,6 @@ from ramp.backtest.engine import EventDrivenBacktestEngine
 from ramp.portfolio.optimizer import RobustConvexOptimizer
 from ramp.execution.cost_model import ExecutionCostModel
 
-
 def test_full_event_driven_backtest():
     symbols = ["SPY", "TLT", "GLD", "BTC-USD"]
     gen = SyntheticRegimeDataGenerator(seed=101)
@@ -44,7 +43,6 @@ def test_full_event_driven_backtest():
 
     results = engine.run(bars)
 
-    # Assertions
     assert "metrics" in results
     assert "history" in results
     assert "weights" in results
@@ -60,7 +58,6 @@ def test_full_event_driven_backtest():
     assert not history.empty
     assert history["total_nav"].iloc[-1] > 0.0
 
-    # Ensure orders were filled with realistic non-zero slippage and commissions
     fills = results["fills"]
     assert len(fills) > 0
     total_slip = sum(f.slippage for f in fills)

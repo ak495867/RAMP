@@ -8,11 +8,10 @@ from typing import Dict, Optional
 import numpy as np
 from ramp.core.types import RegimeState
 
-
 class RegimeHysteresisFilter:
     """
     Applies state-persistence constraints and hysteresis thresholds to raw regime probabilities.
-    
+
     Prevents portfolio turnover churn when probabilities hover around 50/50.
     """
 
@@ -44,7 +43,6 @@ class RegimeHysteresisFilter:
         best_candidate = max(probs, key=probs.get)
         best_prob = probs[best_candidate]
 
-        # Initialization
         if self.current_regime is None:
             self.current_regime = best_candidate
             self.dwell_count = 1
@@ -62,14 +60,13 @@ class RegimeHysteresisFilter:
         is_transition = False
 
         if best_candidate != self.current_regime:
-            # Check crisis fast-trigger bypass
+
             is_crisis_emergency = (
                 self.crisis_fast_trigger and 
                 best_candidate == self.crisis_regime_id and 
                 best_prob >= 0.55
             )
 
-            # Normal hysteresis condition: high confidence + minimum dwell
             can_switch = (
                 best_prob >= self.confidence_threshold and 
                 self.dwell_count > self.min_dwell_bars

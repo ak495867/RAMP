@@ -9,7 +9,6 @@ from enum import Enum
 from typing import Dict, List, Optional
 import numpy as np
 
-
 class AssetClass(str, Enum):
     EQUITY = "equity"
     FIXED_INCOME = "fixed_income"
@@ -17,17 +16,14 @@ class AssetClass(str, Enum):
     CURRENCY = "currency"
     CRYPTO = "crypto"
 
-
 class OrderSide(str, Enum):
     BUY = "BUY"
     SELL = "SELL"
-
 
 class OrderType(str, Enum):
     MARKET = "MARKET"
     LIMIT = "LIMIT"
     TWAP = "TWAP"
-
 
 class OrderStatus(str, Enum):
     PENDING = "PENDING"
@@ -35,7 +31,6 @@ class OrderStatus(str, Enum):
     PARTIALLY_FILLED = "PARTIALLY_FILLED"
     CANCELLED = "CANCELLED"
     REJECTED = "REJECTED"
-
 
 @dataclass(frozen=True)
 class Bar:
@@ -56,7 +51,6 @@ class Bar:
         if self.volume < 0:
             raise ValueError(f"Volume {self.volume} cannot be negative for {self.symbol}")
 
-
 @dataclass
 class Order:
     """Order specification dispatched by portfolio optimizer."""
@@ -68,7 +62,6 @@ class Order:
     limit_price: Optional[float] = None
     created_at: datetime = field(default_factory=datetime.utcnow)
     status: OrderStatus = OrderStatus.PENDING
-
 
 @dataclass
 class Fill:
@@ -82,7 +75,6 @@ class Fill:
     commission: float
     slippage: float
     timestamp: datetime
-
 
 @dataclass
 class Position:
@@ -103,7 +95,6 @@ class Position:
             return 0.0
         return (self.current_price - self.avg_price) * self.quantity
 
-
 @dataclass
 class RegimeState:
     """Regime classification output at timestamp t."""
@@ -114,12 +105,11 @@ class RegimeState:
     is_transition: bool = False
     entropy: float = 0.0
 
-
 @dataclass
 class SignalView:
     """Alpha signal output with expected return and view uncertainty."""
     symbol: str
     expected_return: float
-    confidence: float  # 0.0 to 1.0
+    confidence: float              
     horizon_bars: int = 21
     metadata: Dict = field(default_factory=dict)

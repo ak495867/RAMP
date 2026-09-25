@@ -10,7 +10,6 @@ import duckdb
 import pandas as pd
 import numpy as np
 
-
 class PointInTimeStore:
     """
     Point-in-time analytical store using embedded DuckDB.
@@ -35,7 +34,7 @@ class PointInTimeStore:
                 volume DOUBLE NOT NULL,
                 PRIMARY KEY (timestamp, symbol)
             );
-            
+
             CREATE INDEX IF NOT EXISTS idx_bars_sym_time ON market_bars (symbol, timestamp);
 
             CREATE TABLE IF NOT EXISTS macro_indicators (
@@ -52,11 +51,10 @@ class PointInTimeStore:
         """Inserts OHLCV bars into DuckDB with idempotency (upsert)."""
         if df.empty:
             return
-        
-        # Prepare temp table and insert
+
         temp_df = df[["timestamp", "symbol", "open", "high", "low", "close", "volume"]].copy()
         temp_df["timestamp"] = pd.to_datetime(temp_df["timestamp"])
-        
+
         self.conn.register("temp_bars_input", temp_df)
         self.conn.execute("""
             INSERT OR REPLACE INTO market_bars

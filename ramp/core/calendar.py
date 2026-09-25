@@ -6,7 +6,6 @@ from datetime import datetime, time
 import pandas as pd
 import pytz
 
-
 class MarketCalendar:
     """Handles business day schedules, market open/close, and cross-asset alignment."""
 
@@ -32,10 +31,9 @@ class MarketCalendar:
         df = bars_df.copy()
         df["timestamp"] = pd.to_datetime(df["timestamp"])
 
-        # Determine reference trading days from benchmark
         bm_dates = df[df["symbol"] == benchmark_symbol]["timestamp"].drop_duplicates().sort_values()
         if bm_dates.empty:
-            # Fallback to business days if benchmark not present
+
             bm_dates = df[df["timestamp"].dt.weekday < 5]["timestamp"].drop_duplicates().sort_values()
 
         symbols = df["symbol"].unique()
@@ -43,10 +41,10 @@ class MarketCalendar:
 
         for sym in symbols:
             sym_df = df[df["symbol"] == sym].drop_duplicates(subset=["timestamp"]).sort_values("timestamp")
-            # Reindex to benchmark dates
+
             sym_df = sym_df.set_index("timestamp").reindex(bm_dates)
             sym_df["symbol"] = sym
-            # Forward fill prices, zero fill volume
+
             sym_df["close"] = sym_df["close"].ffill().bfill()
             sym_df["open"] = sym_df["open"].fillna(sym_df["close"])
             sym_df["high"] = sym_df["high"].fillna(sym_df["close"])

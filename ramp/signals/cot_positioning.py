@@ -5,7 +5,6 @@ import pandas as pd
 from ramp.core.types import SignalView
 from ramp.signals.base import BaseSignal
 
-
 class COTPositioningSignal(BaseSignal):
 
     def __init__(self, rolling_weeks: int = 52, crowding_threshold_z: float = 2.0):

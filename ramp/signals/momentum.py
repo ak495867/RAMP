@@ -10,7 +10,6 @@ import pandas as pd
 from ramp.core.types import SignalView
 from ramp.signals.base import BaseSignal
 
-
 class TimeSeriesMomentumSignal(BaseSignal):
     """
     Multi-horizon trend following signal with ex-ante volatility scaling.
@@ -47,19 +46,17 @@ class TimeSeriesMomentumSignal(BaseSignal):
         for symbol in symbols:
             sym_df = df[df["symbol"] == symbol].sort_values("timestamp")
             if len(sym_df) < max(self.lookbacks) + 5:
-                # Insufficient history, assign neutral view
+
                 views[symbol] = SignalView(symbol=symbol, expected_return=0.0, confidence=0.1)
                 continue
 
             closes = sym_df["close"].values
             returns = np.diff(closes) / closes[:-1]
-            
-            # Realized volatility (annualized)
+
             recent_ret = returns[-self.vol_lookback:]
             vol = float(np.std(recent_ret) * np.sqrt(252))
-            vol = max(vol, 0.04)  # Floor volatility to avoid division explosions
+            vol = max(vol, 0.04)                                                 
 
-            # Compute weighted multi-horizon momentum z-score
             trend_scores = []
             for L in self.lookbacks:
                 horizon_ret = (closes[-1] - closes[-L]) / closes[-L]
@@ -70,13 +67,11 @@ class TimeSeriesMomentumSignal(BaseSignal):
 
             composite_z = float(np.dot(self.weights, trend_scores))
 
-            # Expected annualized return scaled to target vol
             expected_ret = (self.target_vol / vol) * composite_z * 0.05
             expected_ret = float(np.clip(expected_ret, -0.40, 0.40))
 
-            # Confidence based on trend alignment across lookbacks
             signs = [np.sign(s) for s in trend_scores]
-            agreement = abs(sum(signs)) / len(signs)  # 1.0 if all agree, 0.33 if mixed
+            agreement = abs(sum(signs)) / len(signs)                                   
             confidence = float(np.clip(0.3 + 0.6 * agreement, 0.1, 0.95))
 
             views[symbol] = SignalView(

@@ -3,14 +3,12 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 from ramp.core.types import Order, OrderSide
 
-
 @dataclass
 class ComplianceResult:
     is_compliant: bool
     violations: List[str]
     clamped_orders: List[Order]
     kill_switch_active: bool = False
-
 
 class PreTradeComplianceEngine:
 
