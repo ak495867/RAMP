@@ -65,7 +65,7 @@ WHERE timestamp <= ?
 
 ## 1.3 Continuous Futures Roll Stitching
 
-Futures contracts expire on fixed delivery schedules. To construct continuous price series without artificial price gaps, RAMP supports two methodologies in [`ramp/data/rolls.py`](file:///d:/RAMP/ramp/data/rolls.py):
+Futures contracts expire on fixed delivery schedules. To construct continuous price series without artificial price gaps, RAMP supports two methodologies in [`ramp/data/rolls.py`](..1/ramp/data/rolls.py):
 
 ### 1. Ratio Backward Adjustment (Percentage Preserving)
 Multiplies historical prices by the ratio of the next contract to the front contract on the roll date:
