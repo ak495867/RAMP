@@ -25,12 +25,12 @@ from ramp.validation.pbo import ProbabilityOfBacktestOverfitting
 
 st.set_page_config(
     page_title="RAMP | Quantitative Portfolio & Regime Platform",
-    page_icon="📈",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-st.title("🛡️ RAMP: Regime-Adaptive Multi-Asset Platform")
+st.title(" RAMP: Regime-Adaptive Multi-Asset Platform")
 st.caption("Research-to-Production Platform: Causal Online Regimes, Convex Optimization & Realistic Market Impact")
 
 # Sidebar Controls
@@ -52,7 +52,7 @@ target_vol = st.sidebar.slider("Annual Volatility Target (%)", min_value=5.0, ma
 turnover_penalty = st.sidebar.slider("Turnover L1 Penalty (Lambda)", min_value=0.000, max_value=0.010, value=0.002, step=0.001, format="%.3f")
 market_impact_y = st.sidebar.slider("Kyle/Almgren Impact Coefficient Y", min_value=0.00, max_value=0.40, value=0.15, step=0.05)
 
-run_button = st.sidebar.button("🚀 Run Event-Driven Backtest", use_container_width=True)
+run_button = st.sidebar.button(" Run Event-Driven Backtest", use_container_width=True)
 
 
 @st.cache_data
@@ -119,10 +119,10 @@ c5.metric("Annual Turnover", f"{metrics.get('annualized_turnover', 0)*100:.0f}%"
 c6.metric("Profit Factor", f"{metrics.get('profit_factor', 0):.2f}")
 
 tab1, tab2, tab3, tab4 = st.tabs([
-    "📈 Equity & Drawdown",
-    "🧠 Regime Detection",
-    "⚖️ Dynamic Allocations",
-    "🔬 Overfitting & Frictions"
+    " Equity & Drawdown",
+    " Regime Detection",
+    " Dynamic Allocations",
+    " Overfitting & Frictions"
 ])
 
 with tab1:
@@ -181,7 +181,7 @@ with tab2:
         fig_regime.update_layout(template="plotly_dark")
         st.plotly_chart(fig_regime, use_container_width=True)
 
-        st.info("💡 **Institutional Guarantee:** Hamilton Forward Filter operates strictly as P(S_t | x_{1:t}) — no look-ahead bias from future market shocks.")
+        st.info(" **Institutional Guarantee:** Hamilton Forward Filter operates strictly as P(S_t | x_{1:t}) — no look-ahead bias from future market shocks.")
 
 with tab3:
     st.subheader("Asset Allocation Over Time")
