@@ -12,7 +12,7 @@ This backward variable $\beta_t(i) = P(x_{t+1:T} \mid S_t = i)$ explicitly evalu
 
 ## 2.2 Online Hamilton Forward Filter
 
-In [`ramp/regimes/online_hmm.py`](file:///d:/RAMP/ramp/regimes/online_hmm.py), RAMP strictly enforces the **Hamilton Forward Algorithm**, calculating state probabilities using only past and present observations:
+In [`ramp/regimes/online_hmm.py`](../ramp/regimes/online_hmm.py), RAMP strictly enforces the **Hamilton Forward Algorithm**, calculating state probabilities using only past and present observations:
 
 $$P(S_t = j \mid x_{1:t}) = \frac{f(x_t \mid S_t = j) \sum_{i=1}^K P(S_t = j \mid S_{t-1} = i) P(S_{t-1} = i \mid x_{1:t-1})}{\sum_{k=1}^K f(x_t \mid S_t = k) \sum_{i=1}^K P(S_t = k \mid S_{t-1} = i) P(S_{t-1} = i \mid x_{1:t-1})}$$
 
@@ -32,7 +32,7 @@ $$\text{Tr}(\Sigma_0) \le \text{Tr}(\Sigma_1) \le \dots \le \text{Tr}(\Sigma_{K-
 
 ## 2.3 Bayesian Online Change-Point Detection (BOCPD)
 
-In [`ramp/regimes/bocpd.py`](file:///d:/RAMP/ramp/regimes/bocpd.py), RAMP implements Adams & MacKay (2007) Bayesian Change-Point Detection. 
+In [`ramp/regimes/bocpd.py`](../ramp/regimes/bocpd.py), RAMP implements Adams & MacKay (2007) Bayesian Change-Point Detection. 
 
 BOCPD maintains a recursive posterior distribution over the **run-length** $r_t$ (the number of time steps since the last structural changepoint):
 
@@ -48,7 +48,7 @@ Where $H(r) = \frac{1}{\lambda}$ is a constant hazard function. When a structura
 
 ## 2.4 Hidden Semi-Markov Models (HSMM) with Explicit Duration
 
-In [`ramp/regimes/hsmm.py`](file:///d:/RAMP/ramp/regimes/hsmm.py), RAMP resolves the memoryless limitation of standard HMMs (which enforce geometric dwell times $P(d) = (1 - a_{ii}) a_{ii}^{d-1}$). 
+In [`ramp/regimes/hsmm.py`](../ramp/regimes/hsmm.py), RAMP resolves the memoryless limitation of standard HMMs (which enforce geometric dwell times $P(d) = (1 - a_{ii}) a_{ii}^{d-1}$). 
 
 The HSMM explicitly parameterizes state dwell probability distributions $p_i(d)$ (e.g. Poisson or Negative Binomial):
 * Regime 0 (Low-Vol Expansion): expected duration $\mu_0 \approx 200$ trading days.
@@ -63,7 +63,7 @@ This prevents premature regime flips during early stages of long-term bull marke
 
 ## 2.5 Bridgewater 4-Quadrant Macro Engine & Yield Curve PCA
 
-In [`ramp/regimes/macro_quadrant.py`](file:///d:/RAMP/ramp/regimes/macro_quadrant.py), macroeconomic momentum is classified across Growth and Inflation axes:
+In [`ramp/regimes/macro_quadrant.py`](../ramp/regimes/macro_quadrant.py), macroeconomic momentum is classified across Growth and Inflation axes:
 
 | Regime Quadrant | Economic Conditions | Favorable Asset Classes |
 |---|---|---|
@@ -82,7 +82,7 @@ Decomposes 2Y, 5Y, 10Y, and 30Y Treasury yields into three orthogonal components
 
 ## 2.6 Anti-Whipsaw Hysteresis Filter
 
-In [`ramp/regimes/filter.py`](file:///d:/RAMP/ramp/regimes/filter.py), raw regime probabilities pass through state-persistence constraints before triggering portfolio adjustments:
+In [`ramp/regimes/filter.py`](../ramp/regimes/filter.py), raw regime probabilities pass through state-persistence constraints before triggering portfolio adjustments:
 
 $$S_t^* = \begin{cases} 
 k^* & \text{if } P(S_t = k^* \mid x_{1:t}) \ge \tau_{\text{enter}} \text{ and } \text{Dwell}_{S_{t-1}} > D_{\min} \\
