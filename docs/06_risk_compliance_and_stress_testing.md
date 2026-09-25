@@ -4,7 +4,7 @@
 
 ## 6.1 Pre-Trade Compliance Gatekeeper
 
-Before any order is dispatched to a broker, it must pass through [`ramp/execution/compliance.py`](file:///d:/RAMP/ramp/execution/compliance.py).
+Before any order is dispatched to a broker, it must pass through [`ramp/execution/compliance.py`](../ramp/execution/compliance.py).
 
 ```
    Target Orders
@@ -59,7 +59,7 @@ Standard Gaussian distribution models fail in liquidity panics because normal cu
 
 $$G_{\xi, \beta}(y) = 1 - \left(1 + \frac{\xi y}{\beta}\right)^{-1/\xi}$$
 
-In [`ramp/validation/evt_copula.py`](file:///d:/RAMP/ramp/validation/evt_copula.py):
+In [`ramp/validation/evt_copula.py`](../ramp/validation/evt_copula.py):
 * Shape parameter $\xi$ measures tail heaviness ($\xi > 0$ indicates fat power-law Fréchet tails).
 * Scale parameter $\beta$ measures dispersion beyond threshold $u$.
 
