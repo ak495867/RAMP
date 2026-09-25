@@ -6,7 +6,7 @@
 
 In live production, physical positions drift away from target weights due to price movement, cash dividends, corporate actions, and partial fills. Continuous rebalancing creates unnecessary turnover and fee drag.
 
-In [`ramp/paper/reconciler.py`](ramp/paper/reconciler.py), RAMP enforces an **Automated Drift Reconciler**:
+In [`ramp/paper/reconciler.py`](../ramp/paper/reconciler.py), RAMP enforces an **Automated Drift Reconciler**:
 
 $$\text{Drift}_i = \left| \frac{\text{Position Market Value}_i}{\text{Total Account NAV}} - w_i^* \right|$$
 
